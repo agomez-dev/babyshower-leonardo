@@ -1,0 +1,233 @@
+/* ESTILOS PARA EL LOADER FULLSCREEN Y CENTRADO */
+.loader-overlay {
+position: fixed; /* Posicionamiento fijo respecto a la ventana de visualización */
+top: 0;
+left: 0;
+width: 100%; /* Cubre todo el ancho de la pantalla */
+height: 100%; /* Cubre todo el alto de la pantalla */
+/* Fondo por defecto (Claro) */
+background: linear-gradient(to bottom, #5EC8F8, #BDEAFF); 
+z-index: 1000; /* Asegura que esté por encima de todo lo demás */
+
+/* Animación para ocultar el loader */
+transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+/* Modo Oscuro para el Loader */
+.dark .loader-overlay {
+background: linear-gradient(to bottom, #1F2937, #374151);
+}
+
+/* Contenedor para el sombrero y el texto del loader */
+.loader-content {
+/* Con 'flex' en loader-overlay, este contenido ya se centrará */
+text-align: center;
+}
+
+.loader-hat-container {
+width: 180px; 
+height: 180px;
+animation: spin 2s linear infinite; /* Animación de giro */
+}
+
+.loader-hat {
+width: 100%;
+height: 100%;
+transform: rotate(-10deg); /* Ligeramente inclinado */
+}
+
+/* Clase para ocultar el loader */
+.loader-hidden {
+opacity: 0;
+visibility: hidden;
+pointer-events: none; /* Asegura que no bloquee interacciones una vez oculto */
+}
+
+/* --- ANIMACIONES --- */
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+@keyframes pulse {
+0%, 100% { opacity: 1; transform: scale(1); }
+50% { opacity: 0.7; transform: scale(0.98); }
+}
+.animate-pulse { animation: pulse 1.5s infinite ease-in-out; }
+
+/* Estilos de las luces del sombrero (reutilizados) */
+.svg-light {
+animation: twinkle 1.5s infinite ease-in-out;
+box-shadow: 0 0 3px 1px currentColor;
+filter: drop-shadow(0 0 4px currentColor);
+}
+.svg-light-red { fill: #E21B23; color: #E21B23; }
+.svg-light-blue { fill: #5EC8F8; color: #5EC8F8; animation-delay: 0.5s; }
+.svg-light-white { fill: #FFFFFF; color: #FFFFFF; animation-delay: 1s; }
+
+
+/* Estilos generales del baby shower */
+.bg-sky-seuss {
+background: radial-gradient(1200px 600px at 10% 10%, rgba(94,200,248,0.35), transparent),
+radial-gradient(900px 500px at 90% 20%, rgba(0,183,211,0.18), transparent),
+linear-gradient(to bottom, #5EC8F8, #BDEAFF);
+}
+#snow { position: fixed; inset: 0; pointer-events: none; z-index: 40; }
+svg { shape-rendering: geometricPrecision; }
+
+/* ESTILO DE RAYAS DEL GATO CON SOMBRERO (Rojo y Blanco) */
+.stripe { 
+width: 100%; 
+height: 20px; 
+background: repeating-linear-gradient(90deg, #E21B23 0 20px, #FFFFFF 20px 40px); 
+}
+
+/* Luces Navideñas */
+.lights { display: flex; justify-content: space-around; width: 100%; padding: 8px 0; background: transparent; }
+.light, .hat-light {
+width: 12px; height: 12px; border-radius: 50%;
+animation: twinkle 1.5s infinite ease-in-out; 
+box-shadow: 0 0 4px 2px currentColor, 0 0 10px 4px currentColor;
+}
+.light:nth-child(4n+1){color:#E21B23;animation-delay:.2s;} .light:nth-child(4n+2){color:#5EC8F8;animation-delay:.4s;} .light:nth-child(4n+3){color:#FFFFFF;animation-delay:.6s;} .light:nth-child(4n+4){color:#00B7D3;animation-delay:.8s;}
+@keyframes twinkle{0%,100%{opacity:.8;transform:scale(.9);}50%{opacity:1;transform:scale(1.1);}75%{opacity:.9;}}
+
+/* ESTILOS DE GRISADO Y DESACTIVACIÓN */
+.card-disabled { filter: grayscale(100%); opacity: 0.6; }
+.card-disabled:hover { transform: none !important; box-shadow: none !important; cursor: not-allowed; }
+
+/* Animaciones */
+#map { border: 4px solid #E21B23; border-radius: 1rem; width: 100%; height: 500px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); } 
+.fade-up{animation:fadeUp 700ms cubic-bezier(.2,.6,.2,1) both;}@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.hover-bounce:hover{transform:translateY(-1.5px) scale(1.02);}
+@keyframes floaty{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);} }
+@keyframes wiggle{0%,100%{transform:rotate(0);}25%{transform:rotate(-5deg);}50%{transform:rotate(5deg);}75%{transform:rotate(-3deg);} }
+
+/* MODAL GENERAL */
+.modal-overlay {
+position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+background-color: rgba(0, 0, 0, 0.7);
+display: flex; justify-content: center; align-items: center;
+z-index: 50;
+}
+.modal-content {
+background-color: white;
+padding: 2rem;
+border-radius: 1.5rem;
+max-width: 95%;
+width: 600px;
+max-height: 90vh;
+overflow-y: auto;
+box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+border: 4px solid #E21B23;
+}
+
+/* Estilos para los foquitos dentro del SVG del sombrero */
+.svg-light {
+animation: twinkle 1.5s infinite ease-in-out;
+box-shadow: 0 0 3px 1px currentColor;
+filter: drop-shadow(0 0 4px currentColor);
+}
+.svg-light-red { fill: #E21B23; color: #E21B23; }
+.svg-light-blue { fill: #5EC8F8; color: #5EC8F8; animation-delay: 0.5s; }
+.svg-light-white { fill: #FFFFFF; color: #FFFFFF; animation-delay: 1s; }
+
+/* ESTILOS PARA EL ENCABEZADO Y COUNTDOWN */
+.simplified-title {
+font-family: 'Dancing Script', cursive; 
+font-size: 3.5rem; 
+font-weight: bold;
+text-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+margin-top: 1rem; 
+margin-bottom: 0.5rem;
+}
+.countdown-container {
+display: flex;
+justify-content: center;
+gap: 1.5rem;
+margin-top: 1.5rem;
+margin-bottom: 2rem;
+flex-wrap: wrap; 
+}
+.countdown-item {
+text-align: center;
+background-color: #E21B23; 
+color: white;
+padding: 0.75rem 1.25rem;
+border-radius: 0.75rem;
+box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+min-width: 90px;
+animation: pulse-glow 2s infinite alternate; 
+transition: transform 0.2s ease-in-out;
+}
+.countdown-number {
+font-family: 'Bangers', cursive; 
+font-size: 2.5rem;
+line-height: 1;
+margin-bottom: 0.25rem;
+text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+.countdown-label {
+font-size: 0.9rem;
+font-weight: bold;
+text-transform: uppercase;
+}
+@keyframes pulse-glow {
+0% { transform: scale(1); box-shadow: 0 4px 10px rgba(0,0,0,0.2), 0 0 0px rgba(255,255,255,0); }
+100% { transform: scale(1.02); box-shadow: 0 6px 15px rgba(0,0,0,0.3), 0 0 10px rgba(255,255,255,0.4); }
+}
+
+/* AJUSTE CLAVE PARA EL BOTÓN Y EL TEXTO DEL LUGAR */
+.location-line {
+display: flex;
+align-items: center; 
+justify-content: space-between; 
+}
+.location-text {
+flex-grow: 1;
+flex-shrink: 1; /* Permitir que el texto se encoja */
+margin-right: 0.5rem; 
+}
+.map-button {
+flex-shrink: 0; /* Por defecto, no se encoge */
+font-size: 0.75rem;
+padding: 0.15rem 0.5rem;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 640px) {
+.simplified-title { font-size: 2.5rem; }
+.countdown-item { padding: 0.5rem 0.8rem; min-width: 70px; }
+.countdown-number { font-size: 1.8rem; }
+.countdown-label { font-size: 0.7rem; }
+.countdown-container { gap: 0.8rem; }
+
+/* AJUSTE CLAVE DE RESPONSIVIDAD DEL MAPA */
+.leaflet-routing-container {
+    max-width: 95%; /* Limita el ancho del contenedor de ruta */
+}
+/* Asegura que cuando está colapsado no rompa el diseño */
+.leaflet-routing-container.leaflet-control-container.leaflet-routing-collapsed {
+    max-width: 100%; 
+}
+/* Hace que las instrucciones de texto sean más pequeñas */
+.leaflet-routing-alt, .leaflet-routing-summary {
+    font-size: 0.8rem; 
+}
+
+/* Ajustes específicos para el botón del mapa en móviles */
+.location-line {
+    flex-direction: column; /* Apilar en vertical en móviles */
+    align-items: flex-start; /* Alinear elementos a la izquierda */
+    gap: 0.5rem; /* Espacio entre el texto y el botón */
+}
+.location-text {
+    margin-right: 0; /* Quitar margen a la derecha */
+    width: 100%; /* Ocupar todo el ancho disponible */
+    white-space: normal; /* Permitir que el texto se envuelva */
+}
+.map-button {
+    width: auto; /* Ancho automático del botón */
+    font-size: 0.8rem; /* Ajustar tamaño de fuente del botón */
+    padding: 0.3rem 0.8rem; /* Ajustar padding del botón */
+    flex-shrink: 1; /* Permitir que el botón se encoja si es necesario */
+}
+}
