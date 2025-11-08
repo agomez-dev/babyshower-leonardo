@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Baby Shower de Leonardo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="./img/assets/favicon.png">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers:wght@400&display=swap" rel="stylesheet">
+
+     <script>
+        // Configuración de Tailwind para soportar el modo oscuro (importante para los colores del loader)
+        tailwind.config = {
+            darkMode: 'class', 
+            theme: {
+                extend: {
+                    colors: {
+                        'sky-light': '#BDEAFF',
+                        'sky-dark': '#1F2937', 
+                        'surface-dark': '#374151', 
+                        'red-seuss': '#E21B23', 
+                        'blue-seuss': '#5EC8F8', 
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ESTILOS PARA EL LOADER FULLSCREEN Y CENTRADO */
+        .loader-overlay {
+            position: fixed; /* Posicionamiento fijo respecto a la ventana de visualización */
+            top: 0;
+            left: 0;
+            width: 100%; /* Cubre todo el ancho de la pantalla */
+            height: 100%; /* Cubre todo el alto de la pantalla */
+            /* Fondo por defecto (Claro) */
+            background: linear-gradient(to bottom, #5EC8F8, #BDEAFF); 
+            z-index: 1000; /* Asegura que esté por encima de todo lo demás */
+            
+            /* Animación para ocultar el loader */
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+        /* Modo Oscuro para el Loader */
+        .dark .loader-overlay {
+            background: linear-gradient(to bottom, #1F2937, #374151);
+        }
+
+        /* Contenedor para el sombrero y el texto del loader */
+        .loader-content {
+            /* Con 'flex' en loader-overlay, este contenido ya se centrará */
+            text-align: center;
+        }
+
+        .loader-hat-container {
+            width: 180px; 
+            height: 180px;
+            animation: spin 2s linear infinite; /* Animación de giro */
+        }
+
+        .loader-hat {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-10deg); /* Ligeramente inclinado */
+        }
+
+        /* Clase para ocultar el loader */
+        .loader-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none; /* Asegura que no bloquee interacciones una vez oculto */
+        }
+
+        /* --- ANIMACIONES --- */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.98); }
+        }
+        .animate-pulse { animation: pulse 1.5s infinite ease-in-out; }
+
+        /* Estilos de las luces del sombrero (reutilizados) */
+        .svg-light {
+            animation: twinkle 1.5s infinite ease-in-out;
+            box-shadow: 0 0 3px 1px currentColor;
+            filter: drop-shadow(0 0 4px currentColor);
+        }
+        .svg-light-red { fill: #E21B23; color: #E21B23; }
+        .svg-light-blue { fill: #5EC8F8; color: #5EC8F8; animation-delay: 0.5s; }
+        .svg-light-white { fill: #FFFFFF; color: #FFFFFF; animation-delay: 1s; }
+
+    </style>
+
+    <style>
+      
+      /* Estilos generales del baby shower */
+      .bg-sky-seuss {
+        background: radial-gradient(1200px 600px at 10% 10%, rgba(94,200,248,0.35), transparent),
+            radial-gradient(900px 500px at 90% 20%, rgba(0,183,211,0.18), transparent),
+            linear-gradient(to bottom, #5EC8F8, #BDEAFF);
+      }
+      #snow { position: fixed; inset: 0; pointer-events: none; z-index: 40; }
+      svg { shape-rendering: geometricPrecision; }
+      
+      /* ESTILO DE RAYAS DEL GATO CON SOMBRERO (Rojo y Blanco) */
+      .stripe { 
+          width: 100%; 
+          height: 20px; 
+          background: repeating-linear-gradient(90deg, #E21B23 0 20px, #FFFFFF 20px 40px); 
+      }
+      
+      /* Luces Navideñas */
+      .lights { display: flex; justify-content: space-around; width: 100%; padding: 8px 0; background: transparent; }
+      .light, .hat-light {
+        width: 12px; height: 12px; border-radius: 50%;
+        animation: twinkle 1.5s infinite ease-in-out; 
+        box-shadow: 0 0 4px 2px currentColor, 0 0 10px 4px currentColor;
+      }
+      .light:nth-child(4n+1){color:#E21B23;animation-delay:.2s;} .light:nth-child(4n+2){color:#5EC8F8;animation-delay:.4s;} .light:nth-child(4n+3){color:#FFFFFF;animation-delay:.6s;} .light:nth-child(4n+4){color:#00B7D3;animation-delay:.8s;}
+      @keyframes twinkle{0%,100%{opacity:.8;transform:scale(.9);}50%{opacity:1;transform:scale(1.1);}75%{opacity:.9;}}
+
+      /* ESTILOS DE GRISADO Y DESACTIVACIÓN */
+      .card-disabled { filter: grayscale(100%); opacity: 0.6; }
+      .card-disabled:hover { transform: none !important; box-shadow: none !important; cursor: not-allowed; }
+
+      /* Animaciones */
+      #map { border: 4px solid #E21B23; border-radius: 1rem; width: 100%; height: 500px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); } 
+      .fade-up{animation:fadeUp 700ms cubic-bezier(.2,.6,.2,1) both;}@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+      .hover-bounce:hover{transform:translateY(-1.5px) scale(1.02);}
+      @keyframes floaty{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);} }
+      @keyframes wiggle{0%,100%{transform:rotate(0);}25%{transform:rotate(-5deg);}50%{transform:rotate(5deg);}75%{transform:rotate(-3deg);} }
+
+      /* MODAL GENERAL */
+      .modal-overlay {
+          position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+          background-color: rgba(0, 0, 0, 0.7);
+          display: flex; justify-content: center; align-items: center;
+          z-index: 50;
+      }
+      .modal-content {
+          background-color: white;
+          padding: 2rem;
+          border-radius: 1.5rem;
+          max-width: 95%;
+          width: 600px;
+          max-height: 90vh;
+          overflow-y: auto;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+          border: 4px solid #E21B23;
+      }
+
+      /* Estilos para los foquitos dentro del SVG del sombrero */
+      .svg-light {
+          animation: twinkle 1.5s infinite ease-in-out;
+          box-shadow: 0 0 3px 1px currentColor;
+          filter: drop-shadow(0 0 4px currentColor);
+      }
+      .svg-light-red { fill: #E21B23; color: #E21B23; }
+      .svg-light-blue { fill: #5EC8F8; color: #5EC8F8; animation-delay: 0.5s; }
+      .svg-light-white { fill: #FFFFFF; color: #FFFFFF; animation-delay: 1s; }
+
+      /* ESTILOS PARA EL ENCABEZADO Y COUNTDOWN */
+      .simplified-title {
+          font-family: 'Dancing Script', cursive; 
+          font-size: 3.5rem; 
+          font-weight: bold;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+          margin-top: 1rem; 
+          margin-bottom: 0.5rem;
+      }
+      .countdown-container {
+          display: flex;
+          justify-content: center;
+          gap: 1.5rem;
+          margin-top: 1.5rem;
+          margin-bottom: 2rem;
+          flex-wrap: wrap; 
+      }
+      .countdown-item {
+          text-align: center;
+          background-color: #E21B23; 
+          color: white;
+          padding: 0.75rem 1.25rem;
+          border-radius: 0.75rem;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+          min-width: 90px;
+          animation: pulse-glow 2s infinite alternate; 
+          transition: transform 0.2s ease-in-out;
+      }
+      .countdown-number {
+          font-family: 'Bangers', cursive; 
+          font-size: 2.5rem;
+          line-height: 1;
+          margin-bottom: 0.25rem;
+          text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+      }
+      .countdown-label {
+          font-size: 0.9rem;
+          font-weight: bold;
+          text-transform: uppercase;
+      }
+      @keyframes pulse-glow {
+          0% { transform: scale(1); box-shadow: 0 4px 10px rgba(0,0,0,0.2), 0 0 0px rgba(255,255,255,0); }
+          100% { transform: scale(1.02); box-shadow: 0 6px 15px rgba(0,0,0,0.3), 0 0 10px rgba(255,255,255,0.4); }
+      }
+
+      /* AJUSTE CLAVE PARA EL BOTÓN Y EL TEXTO DEL LUGAR */
+      .location-line {
+          display: flex;
+          align-items: center; 
+          justify-content: space-between; 
+      }
+      .location-text {
+          flex-grow: 1;
+          flex-shrink: 1; /* Permitir que el texto se encoja */
+          margin-right: 0.5rem; 
+      }
+      .map-button {
+          flex-shrink: 0; /* Por defecto, no se encoge */
+          font-size: 0.75rem;
+          padding: 0.15rem 0.5rem;
+      }
+
+      /* Ajustes para pantallas pequeñas */
+      @media (max-width: 640px) {
+          .simplified-title { font-size: 2.5rem; }
+          .countdown-item { padding: 0.5rem 0.8rem; min-width: 70px; }
+          .countdown-number { font-size: 1.8rem; }
+          .countdown-label { font-size: 0.7rem; }
+          .countdown-container { gap: 0.8rem; }
+          
+          /* AJUSTE CLAVE DE RESPONSIVIDAD DEL MAPA */
+          .leaflet-routing-container {
+              max-width: 95%; /* Limita el ancho del contenedor de ruta */
+          }
+          /* Asegura que cuando está colapsado no rompa el diseño */
+          .leaflet-routing-container.leaflet-control-container.leaflet-routing-collapsed {
+              max-width: 100%; 
+          }
+          /* Hace que las instrucciones de texto sean más pequeñas */
+          .leaflet-routing-alt, .leaflet-routing-summary {
+              font-size: 0.8rem; 
+          }
+
+          /* Ajustes específicos para el botón del mapa en móviles */
+          .location-line {
+              flex-direction: column; /* Apilar en vertical en móviles */
+              align-items: flex-start; /* Alinear elementos a la izquierda */
+              gap: 0.5rem; /* Espacio entre el texto y el botón */
+          }
+          .location-text {
+              margin-right: 0; /* Quitar margen a la derecha */
+              width: 100%; /* Ocupar todo el ancho disponible */
+              white-space: normal; /* Permitir que el texto se envuelva */
+          }
+          .map-button {
+              width: auto; /* Ancho automático del botón */
+              font-size: 0.8rem; /* Ajustar tamaño de fuente del botón */
+              padding: 0.3rem 0.8rem; /* Ajustar padding del botón */
+              flex-shrink: 1; /* Permitir que el botón se encoja si es necesario */
+          }
+      }
+    </style>
+</head>
+
+<body class="min-h-screen text-black flex flex-col items-center">
+    
+    <div id="giftDetailModal" class="modal-overlay hidden" onclick="closeModal('giftDetailModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 id="modalTitle" class="text-2xl font-bold text-red-600 mb-4 text-center">Título del Regalo</h2>
+            <div class="flex flex-col md:flex-row gap-4 mb-4">
+                <img id="modalImage" src="" alt="Imagen del regalo" class="w-full md:w-1/3 h-auto object-cover rounded-lg">
+                <div class="w-full md:w-2/3">
+                    <p id="modalDetail" class="text-gray-700 mb-3"></p>
+                    
+                    <p class="font-semibold text-sm mb-2">Total requerido: <span id="requiredCount"></span></p>
+                    
+                    <p class="font-semibold text-sm">Disponibles para elegir: <span id="availableCount" class="text-green-600"></span></p>
+                    <div class="mt-4">
+                        <p class="font-bold text-sm text-gray-800 mb-1">Sitios sugeridos:</p>
+                        <ul id="modalSites" class="list-disc ml-5 text-sm text-blue-600"></ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="userInteractionArea" class="bg-gray-100 p-4 rounded-lg text-center hidden">
+                <p class="font-bold mb-2">¿Cuántos vas a elegir?</p>
+                <div class="flex justify-center items-center space-x-4">
+                    <button id="decrementBtn" onclick="updateSelection(-1)" class="bg-red-500 text-white p-2 rounded-full w-10 h-10 text-xl font-extrabold transition hover:bg-red-600" disabled>-</button>
+                    <span id="selectedCount" class="text-3xl font-bold text-red-600 min-w-[30px]">0</span>
+                    <button id="incrementBtn" onclick="updateSelection(1)" class="bg-green-500 text-white p-2 rounded-full w-10 h-10 text-xl font-extrabold transition hover:bg-green-600">+</button>
+                </div>
+                <p id="saveMessage" class="text-green-600 text-sm mt-2 hidden">¡Guardado!</p>
+            </div>
+            
+            <div id="noInteractionMessage" class="text-center p-4 rounded-lg bg-yellow-100 hidden">
+                <p class="font-semibold text-yellow-800">Debes iniciar sesión para seleccionar regalos.</p>
+            </div>
+
+            <button onclick="closeModal('giftDetailModal')" class="mt-6 w-full bg-gray-200 text-gray-700 font-semibold py-2 rounded-lg transition hover:bg-gray-300">Cerrar</button>
+        </div>
+    </div>
+    
+    <div class="stripe"></div>
+    <div class="lights">
+      <span class="light"></span><span class="light"></span><span class="light"></span><span class="light"></span>
+      <span class="light"></span><span class="light"></span><span class="light"></span><span class="light"></span>
+      <span class="light"></span><span class="light"></span><span class="light"></span><span class="light"></span>
+    </div>
+
+    <canvas id="snow"></canvas>
+
+    <main class="max-w-7xl w-full mx-4 my-10 space-y-12">
+      
+      <section class="bg-white rounded-3xl shadow-xl p-6 md:p-10 text-center fade-up">
+        
+        
+
+        <div class="flex justify-center mb-0">
+            <div id="hatContainer" class="hat-frame relative w-[200px] sm:w-[240px] md:w-[300px] animate-[floaty_3.5s_ease-in-out_infinite] mb-0">
+                
+                <div class="hat-lights hidden"></div> 
+
+                <svg viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-xl mx-auto select-none">
+                <defs>
+                    <filter id="shadow" x="0" y="0" width="300" height="420">
+                        <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#0E0E10" flood-opacity="0.2"/>
+                    </filter>
+                </defs>
+                <g filter="url(#shadow)">
+                    <ellipse cx="150" cy="320" rx="100" ry="25" fill="#FFFFFF" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"/>
+
+                    <rect x="70" y="270" width="160" height="40" fill="#E21B23" rx="5" ry="5"/>
+                    <rect x="70" y="230" width="160" height="40" fill="#FFFFFF" rx="5" ry="5"/>
+                    <rect x="70" y="190" width="160" height="40" fill="#E21B23" rx="5" ry="5"/>
+                    <rect x="70" y="150" width="160" height="40" fill="#FFFFFF" rx="5" ry="5"/>
+                    <rect x="70" y="110" width="160" height="40" fill="#E21B23" rx="5" ry="5"/>
+                    <rect x="70" y="70" width="160" height="40" fill="#FFFFFF" rx="5" ry="5"/>
+
+                    <path d="M70 70 A80 40 0 0 1 230 70 L230 50 A80 40 0 0 0 70 50 Z" fill="#E21B23"/>
+                    <ellipse cx="150" cy="50" rx="80" ry="20" fill="rgba(0,0,0,0.1)"/> <circle cx="150" cy="200" r="8" class="svg-light svg-light-blue"/>
+                    <circle cx="100" cy="280" r="8" class="svg-light svg-light-red" style="animation-delay: 0.2s;"/>
+                    <circle cx="200" cy="280" r="8" class="svg-light svg-light-white" style="animation-delay: 0.7s;"/>
+                    
+                    <circle cx="120" cy="130" r="8" class="svg-light svg-light-white" style="animation-delay: 0.4s;"/>
+                    <circle cx="180" cy="130" r="8" class="svg-light svg-light-blue" style="animation-delay: 0.9s;"/>
+                </g>
+            </svg>
+            </div>
+        </div>
+
+        <h1 class="simplified-title">
+            <span role="img" aria-label="party popper">🥳</span> 
+            <span class="text-black">Baby Shower de</span> 
+            <span class="text-blue-600">Leonardo</span> 
+            <span role="img" aria-label="party popper">🥳</span>
+        </h1>
+
+        <div class="countdown-container" id="countdownTimer">
+            <div class="countdown-item">
+                <div class="countdown-number" id="countdown-days">00</div>
+                <div class="countdown-label">Días</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="countdown-hours">00</div>
+                <div class="countdown-label">Horas</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="countdown-minutes">00</div>
+                <div class="countdown-label">Minutos</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="countdown-seconds">00</div>
+                <div class="countdown-label">Segundos</div>
+            </div>
+        </div>
+        
+        <p class="text-xl font-medium text-gray-800 mt-0 mb-6" style="margin-top: 0; padding-top: 0;">
+            ¡Espera pronto la mesa de los deseos, ya casi está lista! 🚧
+        </p>
+        
+        <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-800 p-4 rounded-lg shadow-inner inline-block text-left max-w-md mx-auto">
+            <p class="font-bold text-lg mb-1">📅 Fecha: Sábado, 13 de diciembre de 2025</p>
+            <p class="font-bold text-lg mb-1">⏰ Hora: 03:00 p.m.</p>
+            
+            <p class="font-bold text-lg location-line">
+                <span class="location-text">📍 Lugar: Salón De Fiestas Cantoya</span>
+            </p>
+            <a href="#como-llegar" class="map-button font-semibold text-red-600 bg-red-100 hover:bg-red-200 py-1 px-2 rounded-full ml-1 transition">Ver dirección y cómo llegar</a>
+        </div>
+      </section>
+
+      <section class="fade-up">
+        <!-- <h2 class="text-3xl font-extrabold text-red-600 text-center mb-6 bg-white p-4 rounded-xl shadow-md">Lista de Deseos: ¿Qué traerá el Gato con Sombrero?🎩 🎁 🚧</h2> -->
+        <h2 class="text-3xl font-extrabold text-red-600 text-center mb-6 bg-white p-4 rounded-xl shadow-md">🚧Lista de Deseos en construcción🎩🎁🚧</h2>
+        
+        <div id="giftCardsContainer" style="display: none;" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            </div>
+      </section>
+      
+      <section id="como-llegar" class="space-y-5">
+          <h2 class="text-3xl font-extrabold text-red-600 text-center mb-6 bg-white p-4 rounded-xl shadow-md">Como llegar al evento 📍</h2>
+          
+          <div class="bg-white rounded-2xl shadow-lg p-5 md:p-6 fade-up space-y-3">
+            <p class="font-bold text-lg">¡La ruta a la fiesta!</p>
+            
+            <p>
+                <span class="font-semibold text-gray-900">Salón de Fiestas:</span> Salón De Fiestas Cantoya
+                <br>
+                <span class="text-sm text-gray-700">Joaquín de La Cantoya y Rico 100, Jardines de Guadalupe, 58140 Morelia, Michoacán.</span>
+            </p>
+
+            <div id="distanceCard">
+                <div id="distance" class="text-gray-900 font-medium"></div>
+                <div id="user-address" class="text-sm text-gray-700"></div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-lg p-4 md:p-5 fade-up">
+            <p id="status-message" class="text-sm text-gray-600 mb-3"></p>
+            <button id="btn-maps" class="mt-3 w-full bg-[#E21B23] text-white text-xs font-semibold py-2 rounded-full transition hover:bg-red-700">
+                        Ir a Google Maps
+              </button>
+            <div id="map"></div>
+              <button id="btn-maps2" class="mt-3 w-full bg-[#E21B23] text-white text-xs font-semibold py-2 rounded-full transition hover:bg-red-700">
+                        Ir a Google Maps
+              </button>
+          </div>
+      </section>
+      
+    </main>
+
+     <div id="loader" class="loader-overlay flex flex-col items-center justify-center">
+        <div class="loader-content flex flex-col items-center">
+            <div class="loader-hat-container mb-4">
+                <svg viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg" class="loader-hat">
+                    <defs>
+                        <filter id="loader-shadow" x="0" y="0" width="300" height="420">
+                            <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#0E0E10" flood-opacity="0.2"/>
+                        </filter>
+                    </defs>
+                    <g filter="url(#loader-shadow)">
+                        <ellipse cx="150" cy="320" rx="100" ry="25" fill="#FFFFFF" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"/>
+                        <rect x="70" y="270" width="160" height="40" fill="#E21B23" rx="5" ry="5"/>
+                        <rect x="70" y="230" width="160" height="40" fill="#FFFFFF" rx="5" ry="5"/>
+                        <rect x="70" y="190" width="160" height="40" fill="#E21B23" rx="5" ry="5"/>
+                        <rect x="70" y="150" width="160" height="40" fill="#FFFFFF" rx="5" ry="5"/>
+                        <rect x="70" y="110" width="160" height="40" fill="#E21B23" rx="5" ry="5"/>
+                        <rect x="70" y="70" width="160" height="40" fill="#FFFFFF" rx="5" ry="5"/>
+                        <path d="M70 70 A80 40 0 0 1 230 70 L230 50 A80 40 0 0 0 70 50 Z" fill="#E21B23"/>
+                        <ellipse cx="150" cy="50" rx="80" ry="20" fill="rgba(0,0,0,0.1)"/> 
+                        
+                        <circle cx="150" cy="200" r="8" class="svg-light svg-light-blue"/>
+                        <circle cx="100" cy="280" r="8" class="svg-light svg-light-red" style="animation-delay: 0.2s;"/>
+                        <circle cx="200" cy="280" r="8" class="svg-light svg-light-white" style="animation-delay: 0.7s;"/>
+                        <circle cx="120" cy="130" r="8" class="svg-light svg-light-white" style="animation-delay: 0.4s;"/>
+                        <circle cx="180" cy="130" r="8" class="svg-light svg-light-blue" style="animation-delay: 0.9s;"/>
+                    </g>
+                </svg>
+            </div>
+            <p class="text-xl font-bold text-red-seuss dark:text-blue-seuss animate-pulse">¡La aventura está por comenzar!</p>
+        </div>
+    </div>
+
+    <footer class="py-6 text-sm text-gray-700 text-center fade-up">¡Ven y únete a la diversión!</footer>
+
+    <script>
+      // --- DATOS Y ESTADO SIMULADO ---
+      const giftList = [
+          { id: 1, title: 'Pañales Etapa 1', detail: 'Pañales para recién nacido, cualquier marca es bienvenida.', required: 10, img: 'https://i.ibb.co/L5k6Y1b/paales.jpg', sites: [{name: 'Amazon', url: '#'}, {name: 'Walmart', url: '#'}] },
+          { id: 2, title: 'Cuna de Viaje', detail: 'Una cuna plegable para viajes, ligera y fácil de montar.', required: 1, img: 'https://i.ibb.co/31zP863/cuna.jpg', sites: [{name: 'Liverpool', url: '#'}, {name: 'Babies R Us', url: '#'}] },
+          { id: 3, title: 'Set de Biberones', detail: 'Set completo de biberones anti-cólicos de diferentes tamaños.', required: 3, img: 'https://i.ibb.co/Q8Q49rG/biberones.jpg', sites: [{name: 'Farmacia', url: '#'}] },
+          { id: 4, title: 'Ropa 6-9 meses', detail: 'Ropa de invierno para bebé de 6 a 9 meses, abrigos o mamelucos.', required: 5, img: 'https://i.ibb.co/F8j26H0/ropa.jpg', sites: [{name: 'Zara Kids', url: '#'}, {name: 'Tienda Local', url: '#'}] },
+          { id: 5, title: 'Monitor de Bebé', detail: 'Monitor de video con visión nocturna y sensor de movimiento.', required: 1, img: 'https://i.ibb.co/Tmg2k77/monitor.jpg', sites: [{name: 'Best Buy', url: '#'}] },
+          { id: 6, title: 'Juguetes Educativos', detail: 'Juguetes de estimulación temprana (0-6 meses).', required: 4, img: 'https://i.ibb.co/3s68K1c/juguetes.jpg', sites: [{name: 'Juguetería', url: '#'}] },
+      ];
+      const currentUserId = 123; 
+      const isUserLoggedIn = currentUserId !== 0;
+      let userSelections = JSON.parse(localStorage.getItem('giftUserSelections')) || {};
+      let giftInventory = [];
+
+      function initializeInventory() {
+          giftInventory = giftList.map(gift => {
+              let selectedCount = 0;
+              let selectedBy = 0;
+              Object.entries(userSelections).forEach(([userId, selections]) => {
+                  const selection = selections.find(s => s.giftId === gift.id);
+                  if (selection) { selectedCount += selection.quantity;
+                      if (parseInt(userId) === currentUserId) { selectedBy = selection.quantity; } }
+              });
+              return {
+                  ...gift,
+                  currentSelected: selectedCount,
+                  available: gift.required - selectedCount,
+                  userSelected: selectedBy,
+                  isFullyClaimed: (gift.required - selectedCount) <= 0
+              };
+          });
+      }
+      
+      let currentGiftId = null;
+      let currentGift = null;
+      let originalUserSelection = 0;
+
+      function openGiftModal(id) {
+          currentGiftId = id;
+          currentGift = giftInventory.find(g => g.id === id);
+          if (!currentGift) return;
+
+          const modal = document.getElementById('giftDetailModal');
+          const availableCountEl = document.getElementById('availableCount');
+          const selectedCountEl = document.getElementById('selectedCount');
+          const interactionArea = document.getElementById('userInteractionArea');
+          const noInteractionMessage = document.getElementById('noInteractionMessage');
+          const saveMessage = document.getElementById('saveMessage');
+
+          document.getElementById('modalTitle').textContent = currentGift.title;
+          document.getElementById('modalImage').src = currentGift.img;
+          document.getElementById('modalDetail').textContent = currentGift.detail;
+          document.getElementById('requiredCount').textContent = currentGift.required; 
+          
+          const sitesList = document.getElementById('modalSites');
+          sitesList.innerHTML = currentGift.sites.map(site => 
+              `<li><a href="${site.url}" target="_blank" class="text-blue-600 hover:underline">${site.name}</a></li>`
+          ).join('');
+
+          availableCountEl.textContent = currentGift.available;
+          originalUserSelection = currentGift.userSelected;
+          selectedCountEl.textContent = originalUserSelection;
+          saveMessage.classList.add('hidden'); 
+
+          if (isUserLoggedIn) {
+              interactionArea.classList.remove('hidden');
+              noInteractionMessage.classList.add('hidden');
+              updateButtonStates(originalUserSelection, currentGift.available);
+          } else {
+              interactionArea.classList.add('hidden');
+              noInteractionMessage.classList.remove('hidden');
+              noInteractionMessage.querySelector('p').textContent = 
+                  currentGift.isFullyClaimed ? "¡Este regalo ya fue seleccionado! Gracias." : 
+                  "Debes iniciar sesión para seleccionar regalos.";
+          }
+
+          modal.classList.remove('hidden');
+      }
+
+      function updateButtonStates(currentSelection, availableRemaining) {
+          const decrementBtn = document.getElementById('decrementBtn');
+          const incrementBtn = document.getElementById('incrementBtn');
+          
+          decrementBtn.disabled = currentSelection <= 0;
+          const maxIncrease = availableRemaining + currentGift.userSelected;
+          incrementBtn.disabled = currentSelection >= maxIncrease; 
+      }
+
+      function updateSelection(change) {
+          const selectedCountEl = document.getElementById('selectedCount');
+          let currentSelection = parseInt(selectedCountEl.textContent);
+          const availableCountEl = document.getElementById('availableCount');
+          
+          let newSelection = currentSelection + change;
+          if (newSelection < 0) { newSelection = 0; }
+          const maxAllowed = currentGift.available + currentGift.userSelected;
+          if (newSelection > maxAllowed) { newSelection = maxAllowed; }
+
+          if (newSelection !== currentSelection) {
+              selectedCountEl.textContent = newSelection;
+              const newAvailable = currentGift.available - (newSelection - currentGift.userSelected);
+              availableCountEl.textContent = newAvailable;
+              updateButtonStates(newSelection, newAvailable);
+              saveUserSelection(currentGift.id, newSelection);
+              const saveMessage = document.getElementById('saveMessage');
+              saveMessage.classList.remove('hidden');
+              setTimeout(() => saveMessage.classList.add('hidden'), 2000);
+          }
+      }
+
+      function saveUserSelection(giftId, quantity) {
+          if (!isUserLoggedIn) return; 
+          let selections = userSelections[currentUserId] || [];
+          const index = selections.findIndex(s => s.giftId === giftId);
+
+          if (quantity > 0) {
+              if (index > -1) { selections[index].quantity = quantity; } 
+              else { selections.push({ giftId, quantity }); }
+          } else if (index > -1) {
+              selections.splice(index, 1);
+          }
+
+          userSelections[currentUserId] = selections;
+          localStorage.setItem('giftUserSelections', JSON.stringify(userSelections));
+          initializeInventory();
+          renderGiftCards();
+      }
+
+      function closeModal(id) {
+          document.getElementById(id).classList.add('hidden');
+      }
+
+      function renderGiftCards() {
+          const container = document.getElementById('giftCardsContainer');
+          container.innerHTML = giftInventory.map(gift => {
+              const claimedText = gift.isFullyClaimed ? 
+                  `<span class="text-sm font-bold text-red-600">¡Agotado!</span>` : 
+                  `<span class="text-sm font-bold text-gray-700">${gift.available}</span> disponibles`;
+
+              const disabledClass = gift.isFullyClaimed ? 'card-disabled' : 'hover:shadow-lg hover-bounce';
+              const userSelectionText = gift.userSelected > 0 ? 
+                  `<p class="text-xs font-bold text-blue-600 mt-1">Tú elegiste: ${gift.userSelected}</p>` : '';
+              
+              return `
+                <div class="bg-white rounded-xl shadow-md p-3 text-center transition ${disabledClass}">
+                    <img src="${gift.img}" alt="${gift.title}" class="w-full h-24 object-cover rounded-md mb-2 mx-auto" />
+                    <h3 class="font-bold text-sm text-gray-900 truncate" title="${gift.title}">${gift.title}</h3>
+                    <p class="text-xs text-gray-500 mb-2">Se requieren: ${gift.required}</p>
+                    ${claimedText}
+                    ${userSelectionText}
+                    <button 
+                        onclick="openGiftModal(${gift.id})" 
+                        class="mt-3 w-full bg-[#E21B23] text-white text-xs font-semibold py-2 rounded-full transition hover:bg-red-700">
+                        Ver Detalle
+                    </button>
+                </div>
+              `;
+          }).join('');
+      }
+      
+      // --- FUNCIÓN DE SCROLL y MAPA (Mantenida) ---
+      let mapInitialized = false;
+      let geolocated = false;
+
+      function scrollToMapAndInitialize() {
+          // 2. Si la geolocalización no se ha iniciado, iniciarla
+          if (!geolocated) {
+              getLocationAndNavigate();
+              geolocated = true; // Previene múltiples intentos de geolocalización
+              
+          } else {
+              // Si ya se inicializó, simplemente forzar el redibujado del mapa
+              if(mapInstance){
+                mapInstance.invalidateSize(true);
+                showError(0)
+              }
+          }
+      }
+
+      // --- CÓDIGO COUNTDOWN ---
+      const countdownDate = new Date("December 13, 2025 15:00:00").getTime();
+
+      const updateCountdown = setInterval(function() {
+          const now = new Date().getTime();
+          const distance = countdownDate - now;
+
+          const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+          document.getElementById("countdown-days").innerText = String(days).padStart(2, '0');
+          document.getElementById("countdown-hours").innerText = String(hours).padStart(2, '0');
+          document.getElementById("countdown-minutes").innerText = String(minutes).padStart(2, '0');
+          document.getElementById("countdown-seconds").innerText = String(seconds).padStart(2, '0');
+
+          if (distance < 0) {
+              clearInterval(updateCountdown);
+              document.getElementById("countdownTimer").innerHTML = "<div class='text-2xl font-bold text-red-600'>¡Es hoy! ¡Felicidades!</div>";
+          }
+      }, 1000);
+
+
+      // --- CÓDIGO LEAFLET Y MAPA ---
+
+      const DESTINO_COORDENADAS = [19.710088, -101.225562];
+      const GOOGLE_MAPS_URL = `https://www.google.com/maps/dir/?api=1&destination=${DESTINO_COORDENADAS[0]},${DESTINO_COORDENADAS[1]}`;
+      const salon = { lat: DESTINO_COORDENADAS[0], lng: DESTINO_COORDENADAS[1] };
+      // Se mantiene tu URL local para el pin
+      const BABY_ICON_URL = './img/assets/pin-baby.png'; 
+      
+      let mapInstance = null; 
+      let routingControl = null;
+      const geocoder = L.Control.Geocoder.nominatim();
+      
+      const distanceEl = document.getElementById('distance');
+      const userAddressSpan = document.getElementById('user-address');
+      const statusMessage = document.getElementById('status-message');
+
+      // Definición del ícono de bebé
+      const babyIcon = L.icon({
+          iconUrl: BABY_ICON_URL, 
+          iconSize: [45, 45], 
+          iconAnchor: [22, 45], 
+          popupAnchor: [0, -45] 
+      });
+
+
+      function getLocationAndNavigate() {
+          if (navigator.geolocation) {
+              // *** TEXTO ORIGINAL RESTAURADO ***
+              statusMessage.innerText = "Buscando tu ubicación... Por favor, acepta el permiso si es solicitado."; 
+              userAddressSpan.innerText = "Detectando...";
+              
+              navigator.geolocation.getCurrentPosition(
+                  showPosition, 
+                  showError,    
+                  { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+              );
+          } else {
+              statusMessage.innerText = "Tu navegador no soporta la geolocalización.";
+              showError({ code: 99, message: "Geolocation not supported" });
+          }
+      }
+
+      function showPosition(position) {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const ORIGEN_COORDENADAS = [lat, lon];
+          const user = { lat: lat, lng: lon };
+
+          const R = 6371;
+          const dLat = (salon.lat - user.lat) * Math.PI / 180;
+          const dLon = (salon.lng - user.lng) * Math.PI / 180;
+          const a = Math.sin(dLat/2)**2 + Math.cos(user.lat*Math.PI/180) * Math.cos(salon.lat*Math.PI/180) * Math.sin(dLon/2)**2;
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+          const d = R * c;
+          let km = d * 1.2; 
+          let time = (km / 25 * 60).toFixed(0);
+
+          // *** TEXTO DE DISTANCIA ORIGINAL RESTAURADO ***
+          if (km < 1) {
+              distanceEl.innerHTML = `<span class="font-semibold">Distancia aprox. de ruta:</span> ${(km * 1000).toFixed(0)} m (~${time} min en coche).`;
+          } else {
+              distanceEl.innerHTML = `<span class="font-semibold">Distancia aprox. de ruta:</span> ${km.toFixed(1)} km (~${time} min en coche).`;
+          }
+          
+          // *** TEXTO ORIGINAL RESTAURADO ***
+          statusMessage.innerText = "Ubicación detectada. Obteniendo tu dirección legible y calculando ruta..."; 
+          const NOMINATIM_URL = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`; 
+
+          fetch(NOMINATIM_URL)
+              .then(response => {
+                  if (!response.ok) { throw new Error(`Error HTTP: ${response.status}`); }
+                  return response.json();
+              })
+              .then(data => {
+                  let userAddress = data.display_name || "Dirección no disponible.";
+                  userAddressSpan.innerText = userAddress;
+                  initializeMapAndRoute(ORIGEN_COORDENADAS);
+
+                  // Nota: El listener de 'routeselected' se mantiene dentro de initializeMapAndRoute
+              })
+              .catch(error => {
+                  statusMessage.innerText = `⚠️ Error en geocodificación. Se mostrarán coordenadas.`;
+                  userAddressSpan.innerText = `(Coordenadas: ${lat}, ${lon})`;
+                  initializeMapAndRoute(ORIGEN_COORDENADAS);
+              });
+      }
+
+      // === FUNCIONES DE MAPA MODIFICADAS para inyectar botón en lugar de modal ===
+
+      function showError(error) {
+          const statusMessage = document.getElementById('status-message');
+          const userAddressSpan = document.getElementById('user-address');
+          
+          userAddressSpan.style.color = 'red';
+          distanceEl.innerHTML = `<span class="font-semibold">Distancia aprox. de ruta:</span> Desconocida.`;
+
+          // Contenido del mensaje de error, que ahora incluye el botón de Google Maps
+          let errorMessage = "❌ No se pudo obtener tu ubicación. Se muestra el lugar de la fiesta.";
+          
+          if (error.code === error.PERMISSION_DENIED) {
+              errorMessage = "❌ Permiso de ubicación denegado. Se muestra el lugar de la fiesta.";
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+              errorMessage = "❌ Ubicación no disponible. Se muestra el lugar de la fiesta.";
+          } else if (error.code === 99) {
+              // Navegador no soporta Geolocalización
+              errorMessage = "❌ Tu navegador no soporta la geolocalización. Se muestra el lugar de la fiesta.";
+          }
+
+
+          // INSERCIÓN DEL BOTÓN EN EL DIV DE MENSAJE DE ESTADO (Solución al modal)
+          statusMessage.innerHTML = `
+              <div class="p-3 border border-red-300 bg-red-50 rounded-lg text-red-800 text-center">
+                  ${errorMessage}
+                  <a href="${GOOGLE_MAPS_URL}" target="_blank" class="block mt-3 w-full bg-blue-600 text-white font-semibold py-2 rounded-lg transition hover:bg-blue-700">
+                      Ir a Google Maps y ver como llegar
+                  </a>
+              </div>
+          `;
+          userAddressSpan.innerText = "Ruta no disponible.";
+          
+          // En todos los casos de error, inicializar el mapa solo al punto de destino
+          initializeMapOnly(DESTINO_COORDENADAS);
+      }
+      
+      // Función para inicializar el mapa solo con el marcador de destino (para casos de error e inicio)
+      function initializeMapOnly(coords) {
+          if (mapInstance === null) {
+              mapInstance = L.map('map').setView(coords, 13);
+              L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                  attribution: 'Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+                  maxZoom: 19,
+              }).addTo(mapInstance);
+          } else {
+              mapInstance.setView(coords, 13);
+              // Limpiar cualquier control de ruta anterior
+              if (routingControl) {
+                  mapInstance.removeControl(routingControl);
+                  routingControl = null;
+              }
+              // Limpiar todos los marcadores y polilíneas
+              mapInstance.eachLayer(function (layer) {
+                  if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+                      mapInstance.removeLayer(layer);
+                  }
+              });
+          }
+
+          L.marker(coords, { icon: babyIcon }).addTo(mapInstance)
+              .bindPopup("<b>¡Baby Shower de Leonardo! 🎩🥳</b>")
+              .openPopup();
+          
+          mapInstance.invalidateSize(true);
+      }
+      
+      // Función para inicializar el mapa con la ruta (para casos de éxito)
+      function initializeMapAndRoute(originCoords) {
+          if (mapInstance === null) {
+              mapInstance = L.map('map').setView(originCoords, 13);
+              L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                  attribution: 'Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+                  maxZoom: 19,
+              }).addTo(mapInstance);
+          } else {
+              mapInstance.setView(originCoords, 13);
+              // Limpiar cualquier control de ruta anterior
+              if (routingControl) mapInstance.removeControl(routingControl);
+              // Limpiar marcadores que no sean de la ruta (como el marcador individual de la fiesta)
+              mapInstance.eachLayer(function (layer) {
+                  if (layer instanceof L.Marker) {
+                      mapInstance.removeLayer(layer);
+                  }
+                  if (layer instanceof L.Polyline) { // Limpia rutas anteriores
+                      mapInstance.removeLayer(layer);
+                  }
+              });
+          }
+
+
+          // Configuración del control de ruta
+          routingControl = L.Routing.control({
+              waypoints: [
+                  L.latLng(originCoords[0], originCoords[1]), 
+                  L.latLng(DESTINO_COORDENADAS[0], DESTINO_COORDENADAS[1])
+              ],
+              geocoder: geocoder, 
+              language: 'es',
+              showAlternatives: false, // Quitar rutas alternativas
+              collapsible: true, // Hacer el panel colapsable
+              collapsed: true, // Iniciar el panel en estado colapsado (Minimizado)
+              // CREACIÓN DE MARCADORES PERSONALIZADA
+              createMarker: function(i, waypoint, n) {
+                  // i=0 es el punto de inicio, i=n-1 es el punto final
+                  if (i === 0) { // Punto de inicio (Usuario)
+                      return L.marker(waypoint.latLng, { icon: babyIcon, draggable: true })
+                          .bindPopup("<b>¡Tú estás aquí!</b>");
+                  } else if (i === n - 1) { // Punto de destino (Fiesta)
+                      return L.marker(waypoint.latLng, { icon: babyIcon })
+                          .bindPopup("<b>¡Baby Shower de Leonardo! 🎩🥳</b>").openPopup();
+                  }
+                  return L.marker(waypoint.latLng); // Marcador por defecto para puntos intermedios
+              },
+              lineOptions: { styles: [{ color: '#E21B23', weight: 6 }] } 
+          }).addTo(mapInstance);
+          
+          // Asegurar que el mapa se ajuste a la ruta y que el mensaje se actualice.
+          routingControl.on('routeselected', function(e) {
+              const bounds = L.latLngBounds(e.route.coordinates);
+              mapInstance.fitBounds(bounds, { padding: [50, 50] });
+              // *** TEXTO ORIGINAL RESTAURADO EN EVENTO DE RUTA ***
+              statusMessage.innerText = "Ruta para llegar al evento. ¡Tú estás aquí!";
+          });
+
+          mapInstance.invalidateSize(true);
+      }
+      
+      // --- CÓDIGO DE ESTILO Y EFECTOS ---
+      
+      const snow = document.getElementById('snow');
+      const ctx = snow.getContext('2d');
+      let W, H, flakes = [];
+      const FLAKES = 140;
+      function resizeSnow(){ W = snow.width = window.innerWidth; H = snow.height = window.innerHeight; }
+      window.addEventListener('resize', resizeSnow); resizeSnow();
+      function makeFlakes(){ flakes = Array.from({length: FLAKES}, () => ({ x: Math.random()*W, y: Math.random()*H, r: Math.random()*2+0.5, s: Math.random()*0.8+0.2, drift: (Math.random()-.5)*0.8 })); }
+      makeFlakes();
+      (function loop(){ ctx.clearRect(0,0,W,H); for(const f of flakes){ ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,Math.PI*2); ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fill(); f.y += f.s; f.x += f.drift; if(f.y>H){ f.y = -5; f.x = Math.random()*W; } } requestAnimationFrame(loop); })();
+
+      const hatContainer = document.getElementById('hatContainer');
+      const svgHat = hatContainer.querySelector('svg');
+      
+      function shakeHat() {
+        svgHat.classList.add('animate-[wiggle_1.8s_ease-in-out]');
+        setTimeout(() => svgHat.classList.remove('animate-[wiggle_1.8s_ease-in-out]'), 1800);
+      }
+      setInterval(shakeHat, 2000); 
+
+      // LÓGICA DE CARGA AUTOMÁTICA FINAL
+      document.addEventListener('DOMContentLoaded', () => {
+        initializeInventory();
+        renderGiftCards();
+        // Inicializa el mapa solo para mostrar el salón con los mensajes originales
+        distanceEl.innerText = "";
+        userAddressSpan.innerText = "";
+        
+        // *** TEXTO ORIGINAL RESTAURADO AL INICIO ***
+        statusMessage.innerText = "El mapa muestra el lugar de la fiesta. Haz clic en el botón para calcular tu ruta.";
+        
+        initializeMapOnly(DESTINO_COORDENADAS); 
+      });
+
+
+      /**
+     * Aplica un fondo al body de la página basado en la hora local: Día, Tarde o Noche.
+     */
+    
+        
+        /**
+         * Detecta la hora actual y aplica un fondo de degradado al body 
+         * para simular Día, Tarde o Noche.
+         */
+        function aplicarFondoPorHora() {
+            const now = new Date();
+            const hour = now.getHours();
+            let backgroundStyle = '';
+
+            // --- 1. Definición de Rangos y Estilos ---
+            
+            // Mañana/Día: 5:00 a 11:59 (Tu estilo de cielo azul)
+            if (hour >= 5 && hour < 12) {
+                backgroundStyle = `
+                    radial-gradient(1200px 600px at 10% 10%, rgba(94,200,248,0.35), transparent),
+                    radial-gradient(900px 500px at 90% 20%, rgba(0,183,211,0.18), transparent),
+                    linear-gradient(to bottom, #5EC8F8, #BDEAFF)
+                `;
+            } 
+            
+            // Tarde: 12:00 a 18:59 (Atardecer Suave: Rojizo fundiéndose en tu azul)
+            else if (hour >= 12 && hour < 19) {
+                backgroundStyle = `
+                    radial-gradient(1000px 500px at 50% 15%, rgba(255,100,50,0.7), transparent), 
+                    radial-gradient(1200px 600px at 10% 90%, rgba(100,0,150,0.15), transparent),
+                    linear-gradient(to bottom, #8B0000 0%, #FF4500 30%, #5EC8F8 60%, #BDEAFF 100%)
+                `;
+            } 
+            
+            // Noche: 19:00 a 4:59 (Negro sutil y profundo, evitando el negro total)
+            else {
+                backgroundStyle = `
+                    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08), transparent),
+                    radial-gradient(circle at 20% 80%, rgba(50, 50, 100, 0.15), transparent),
+                    linear-gradient(to bottom, #00000A, #191970) /* Negro muy oscuro a azul medianoche */
+                `;
+            }
+
+            // --- 2. Aplicar los estilos al body ---
+            const body = document.body;
+            body.style.background = backgroundStyle;
+            body.style.backgroundAttachment = 'fixed';
+            body.style.margin = '0'; 
+            body.style.minHeight = '100vh'; 
+            body.style.color = (hour >= 5 && hour < 19) ? '#333' : '#FFF'; // Texto blanco para la noche
+        }
+
+        // --- 3. Ejecución Automática ---
+
+        // 1. Llama a la función inmediatamente al cargar la página para aplicar el color inicial.
+        document.addEventListener('DOMContentLoaded', aplicarFondoPorHora);
+
+
+        function aplicarEstilosContenedorLeaflet() {
+            const controlContainer = document.querySelector('.leaflet-top.leaflet-right');
+            const controlContainer2 = document.querySelector('.leaflet-top.leaflet-right');
+            
+            if (controlContainer) {
+                
+                controlContainer.style.display = 'none';
+                
+            } else {
+                console.warn("El contenedor '.leaflet-top.leaflet-right' no fue encontrado.");
+            }
+
+             if (controlContainer2) {
+                
+                controlContainer2.style.display = 'none';
+                
+            } else {
+                console.warn("El contenedor '.leaflet-top.leaflet-right' no fue encontrado.");
+            }
+}
+
+        setInterval(aplicarFondoPorHora, 60000);
+
+        scrollToMapAndInitialize()
+
+
+
+
+let miIntervalo;
+const DURACION_INTERVALO_MS = 500;
+const DURACION_TOTAL_MS = 1500; 
+
+function tareaDelIntervalo() {
+    // Coloca aquí el código que quieres que se ejecute repetidamente.
+    // Por ejemplo, puedes cambiar un color o verificar una condición.
+    console.log(`[${new Date().toLocaleTimeString()}] Intervalo activo.`);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Obtén el botón usando su ID
+    const mapsButton = document.getElementById('btn-maps');
+    const mapsButton2 = document.getElementById('btn-maps2');
+
+    // La dirección del destino, codificada para URL (espacios por +)
+    const destinoCodificado = "Salón+De+Fiestas+Cantoya+en+Joaquín+de+La+Cantoya+y+Rico+100,+Jardines+de+Guadalupe,+58140+Morelia,+Mich.";
+
+    // 2. Construye el URL de Indicaciones (Directions)
+    // El formato 'daddr=' indica el destino. Si 'saddr=' (origen) se omite, Maps
+    // asume que el origen es la ubicación actual del usuario.
+    const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destinoCodificado}`;
+
+    // 3. Agrega el escuchador de eventos
+    if (mapsButton) {
+        mapsButton.addEventListener('click', () => {
+            // Abre el URL de indicaciones en una nueva pestaña
+            window.open(directionsUrl, '_blank');
+        });
+    }
+
+      if (mapsButton2) {
+        mapsButton2.addEventListener('click', () => {
+            // Abre el URL de indicaciones en una nueva pestaña
+            window.open(directionsUrl, '_blank');
+        });
+    }
+});
+
+window.onload = () => {
+
+    miIntervalo = setInterval(tareaDelIntervalo, DURACION_INTERVALO_MS);
+    console.log(`Intervalo ID ${miIntervalo} iniciado al cargar.`);
+
+    setTimeout(() => {
+        if (miIntervalo) {
+            clearInterval(miIntervalo);
+            aplicarEstilosContenedorLeaflet();
+            miIntervalo = null; 
+        }
+    }, DURACION_TOTAL_MS); 
+};
+
+    </script>
+
+
+<script>
+        // --- FUNCIONES MODULARES PARA EL LOADER ---
+        const loaderElement = document.getElementById('loader');
+
+        /**
+         * Muestra el loader fullscreen.
+         * Útil si necesitas mostrarlo en algún evento específico.
+         */
+        window.showLoader = function() {
+            if (loaderElement) {
+                loaderElement.classList.remove('loader-hidden');
+            }
+        }
+
+        /**
+         * Oculta el loader fullscreen mediante una transición suave.
+         * Esta es la función principal que se llama al terminar de cargar la página.
+         */
+        window.hideLoader = function() {
+            if (loaderElement) {
+                loaderElement.classList.add('loader-hidden');
+                // Opcional: Eliminar el elemento del DOM después de la transición 
+                // para que no interfiera (aunque con visibility: hidden ya es suficiente).
+                // setTimeout(() => {
+                //      loaderElement.style.display = 'none'; 
+                // }, 600); 
+            }
+        }
+        // --- FIN FUNCIONES MODULARES PARA EL LOADER ---
+
+
+        window.addEventListener('load', function() {
+            window.hideLoader();
+        });
+    </script>
+
+</body>
+</html>

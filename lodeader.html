@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Loader Dr. Seuss (Fullscreen y Centrado)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configuración de Tailwind para soportar el modo oscuro (importante para los colores del loader)
+        tailwind.config = {
+            darkMode: 'class', 
+            theme: {
+                extend: {
+                    colors: {
+                        'sky-light': '#BDEAFF',
+                        'sky-dark': '#1F2937', 
+                        'surface-dark': '#374151', 
+                        'red-seuss': '#E21B23', 
+                        'blue-seuss': '#5EC8F8', 
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ESTILOS PARA EL LOADER FULLSCREEN Y CENTRADO */
+        .loader-overlay {
+            position: fixed; /* Posicionamiento fijo respecto a la ventana de visualización */
+            top: 0;
+            left: 0;
+            width: 100%; /* Cubre todo el ancho de la pantalla */
+            height: 100%; /* Cubre todo el alto de la pantalla */
+            /* Fondo por defecto (Claro) */
+            background: linear-gradient(to bottom, #5EC8F8, #BDEAFF); 
+            z-index: 1000; /* Asegura que esté por encima de todo lo demás */
+            
+            /* Animación para ocultar el loader */
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+        /* Modo Oscuro para el Loader */
+        .dark .loader-overlay {
+            background: linear-gradient(to bottom, #1F2937, #374151);
+        }
+
+        /* Contenedor para el sombrero y el texto del loader */
+        .loader-content {
+            /* Con 'flex' en loader-overlay, este contenido ya se centrará */
+            text-align: center;
+        }
+
+        .loader-hat-container {
+            width: 180px; 
+            height: 180px;
+            animation: spin 2s linear infinite; /* Animación de giro */
+        }
+
+        .loader-hat {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-10deg); /* Ligeramente inclinado */
+        }
+
+        /* Clase para ocultar el loader */
+        .loader-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none; /* Asegura que no bloquee interacciones una vez oculto */
+        }
+
+        /* --- ANIMACIONES --- */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.98); }
+        }
+        .animate-pulse { animation: pulse 1.5s infinite ease-in-out; }
+
+        /* Estilos de las luces del sombrero (reutilizados) */
+        .svg-light {
+            animation: twinkle 1.5s infinite ease-in-out;
+            box-shadow: 0 0 3px 1px currentColor;
+            filter: drop-shadow(0 0 4px currentColor);
+        }
+        .svg-light-red { fill: #E21B23; color: #E21B23; }
+        .svg-light-blue { fill: #5EC8F8; color: #5EC8F8; animation-delay: 0.5s; }
+        .svg-light-white { fill: #FFFFFF; color: #FFFFFF; animation-delay: 1s; }
+
+    </style>
+</head>
+<body>
+
+    <div id="loader" class="loader-overlay flex flex-col items-center justify-center">
+        <div class="loader-content flex flex-col items-center">
+            <div class="loader-hat-container mb-4">
+                <svg viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg" class="loader-hat">
+                    <defs>
+                        <filter id="loader-shadow" x="0" y="0" width="300" height="420">
+                            <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#0E0E10" flood-opacity="0.2"/>
+                        </filter>
+                    </defs>
+                    <g filter="url(#loader-shadow)">
+                        <ellipse cx="150" cy="320" rx="100" ry="25" fill="#FFFFFF" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"/>
+                        <rect x="70" y="270" width="160" height="40" fill="#E21B23" rx="5" ry="5"/>
+                        <rect x="70" y="230" width="160" height="40" fill="#FFFFFF" rx="5" ry="5"/>
+                        <rect x="70" y="190" width="160" height="40" fill="#E21B23" rx="5" ry="5"/>
+                        <rect x="70" y="150" width="160" height="40" fill="#FFFFFF" rx="5" ry="5"/>
+                        <rect x="70" y="110" width="160" height="40" fill="#E21B23" rx="5" ry="5"/>
+                        <rect x="70" y="70" width="160" height="40" fill="#FFFFFF" rx="5" ry="5"/>
+                        <path d="M70 70 A80 40 0 0 1 230 70 L230 50 A80 40 0 0 0 70 50 Z" fill="#E21B23"/>
+                        <ellipse cx="150" cy="50" rx="80" ry="20" fill="rgba(0,0,0,0.1)"/> 
+                        
+                        <circle cx="150" cy="200" r="8" class="svg-light svg-light-blue"/>
+                        <circle cx="100" cy="280" r="8" class="svg-light svg-light-red" style="animation-delay: 0.2s;"/>
+                        <circle cx="200" cy="280" r="8" class="svg-light svg-light-white" style="animation-delay: 0.7s;"/>
+                        <circle cx="120" cy="130" r="8" class="svg-light svg-light-white" style="animation-delay: 0.4s;"/>
+                        <circle cx="180" cy="130" r="8" class="svg-light svg-light-blue" style="animation-delay: 0.9s;"/>
+                    </g>
+                </svg>
+            </div>
+            <p class="text-xl font-bold text-red-seuss dark:text-blue-seuss animate-pulse">¡La aventura está por comenzar!</p>
+        </div>
+    </div>
+
+    
+</body>
+</html>

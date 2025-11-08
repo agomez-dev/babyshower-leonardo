@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🎩 Baby Shower de Leonardo – Mesa de Regalos</title>
+  <meta name="description" content="Landing de mesa de regalos para el Baby Shower de Leonardo." />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Fuente redondeada e infantil -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="/baby shower/img/assets/favicon.png">
+  <style>
+    :root{
+      --rojo:#FF0000; /* rojo Dr. Seuss */
+      --celeste:#00BFFF; /* azul celeste principal */
+      --blanco:#FFFFFF;
+      --verde:#228B22; /* verde navideño */
+      --negro:#000000;
+    }
+    html, body { height: 100%;     margin: 0; overflow-x: hidden;}
+    body { font-family: 'Quicksand', ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif; }
+
+    /* ======= FONDO FULLSCREEN (día/noche + bokeh + copos) ======= */
+    #bg-fullscreen{ position:fixed; inset:0; z-index:-2; 
+    }
+    #bg-fullscreen::before{ /* capa imagen */
+      content:""; position:absolute; inset:0; background-size:cover; background-position:center; filter:contrast(1.05) saturate(1.1);
+      transition:opacity .6s ease, filter .6s ease; opacity:1;
+    }
+    #bg-fullscreen::after{ /* bokeh suave */
+      content:""; position:fixed; inset:0; pointer-events:none;
+      background:
+        radial-gradient(120px 120px at 10% 20%, rgba(255,255,255,.15), transparent 60%),
+        radial-gradient(140px 140px at 80% 30%, rgba(255,0,0,.12), transparent 60%),
+        radial-gradient(160px 160px at 30% 80%, rgba(0,191,255,.14), transparent 60%);
+      mix-blend-mode: screen; animation: bokeh 12s linear infinite alternate;
+    }
+    @keyframes bokeh{ from{transform:translateY(0)} to{transform:translateY(-6px)} }
+
+    body.theme-day #bg-fullscreen::before{ 
+        background-image:url('./navidad.jpg');
+        position: fixed;      /* ocupa toda la ventana */
+        inset: 0;             /* top:0; right:0; bottom:0; left:0 */
+        width: 100vw;
+        height: 100vh;
+        object-fit: contain;  /* muestra la imagen completa sin recortar */
+        object-position: center center;
+        background-color: black; /* color de relleno donde haya "espacio" */
+        display: block;
+    }
+
+    
+    body.theme-night #bg-fullscreen::before{ background-image:url('https://images.unsplash.com/photo-1513303843911-1f3aa7c1a9a1?q=80&w=1920&auto=format&fit=crop'); filter:brightness(.8) saturate(1.15); }
+
+    /* Fondo de nieve (partículas CSS) */
+    .snowflake{ position: absolute; top:-10px; color: white; user-select: none; pointer-events: none; opacity: .9; animation: fall linear infinite; }
+    @keyframes fall { to { transform: translateY(110vh) rotate(360deg);} }
+
+    /* Luces navideñas (estilo guirnalda) */
+    .lights { position: absolute; inset: 0 0 auto 0; height: 60px; overflow: visible; pointer-events: none; }
+    .bulb { width: 12px; height: 18px; border-radius: 6px 6px 12px 12px; display:inline-block; margin: 0 10px; background: var(--celeste);
+      box-shadow: 0 0 10px currentColor, 0 0 20px currentColor; animation: glow 2s ease-in-out infinite; }
+    .bulb.red { color: var(--rojo); background: var(--rojo);} 
+    .bulb.green { color: var(--verde); background: var(--verde);} 
+    .bulb.blue { color: var(--celeste); background: var(--celeste);} 
+    .bulb.white { color: #bfe9ff; background: #bfe9ff; }
+    @keyframes glow { 0%,100%{opacity:.7; transform: translateY(0);} 50%{opacity:1; transform: translateY(2px);} }
+
+    /* Rayas del sombrero (sutiles en header) */
+    .hat-stripes { background: repeating-linear-gradient(90deg, var(--rojo) 0 24px, var(--blanco) 24px 48px);
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.25), rgba(0,0,0,0));
+              mask-image: linear-gradient(to bottom, rgba(0,0,0,.25), rgba(0,0,0,0)); }
+
+    /* Cintillo decorativo tipo guirnalda */
+    .cintillo { position:relative; overflow:hidden; }
+    .cintillo::before{ content:""; position:absolute; inset:0; background:linear-gradient(90deg, var(--celeste), var(--rojo)); opacity:.15; }
+    .cintillo .marquesina{ display:flex; gap:18px; white-space:nowrap; animation: scrollx 12s linear infinite; }
+    .cintillo .lamp{ width:10px; height:16px; border-radius:5px; display:inline-block; box-shadow:0 0 10px currentColor, 0 0 18px currentColor; }
+    .lamp.blue{ color:var(--celeste); background:var(--celeste);} .lamp.red{ color:var(--rojo); background:var(--rojo);} .lamp.green{ color:var(--verde); background:var(--verde);} .lamp.white{ color:#fff; background:#fff; }
+    @keyframes scrollx { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* Animaciones suaves */
+    .fade-in { animation: fi .8s ease both; }
+    @keyframes fi { from {opacity:0; transform: translateY(6px);} to {opacity:1; transform: translateY(0);} }
+    .pop-in { animation: pi .6s cubic-bezier(.22,1,.36,1) both; }
+    @keyframes pi { from {opacity:0; transform: scale(.96);} to {opacity:1; transform: scale(1);} }
+
+    /* ===== Modal ===== */
+    .modal-backdrop { 
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.70);
+      display: none;
+      align-items: center;            /* centra vertical */
+      justify-content: center;        /* centra horizontal */
+      z-index: 100;
+      overflow-y: auto;               /* si el modal es más alto que la pantalla */
+      padding: 2rem 1rem;             /* margen de seguridad con el borde */
+    }
+    .modal-backdrop.show { display: flex; }
+    body.modal-open { overflow: auto; } /* BLOQUEA SCROLL DEL FONDO */
+
+    .modal-frame{ 
+      position:relative; 
+      overflow-y: hidden;               /* scroll interno del contenido del modal */
+      max-height: 90vh;               /* no excede alto de la pantalla */
+      overflow-x: hidden;
+    }
+    .modal-frame::-webkit-scrollbar { width: 10px; }
+
+    .modal-frame::before{ /* imagen de fondo decorativa dentro del modal */
+      content:""; position:absolute; inset:0; z-index:0;
+      background-image:url('https://mundocine.es/wp-content/uploads/2025/07/el-gato-con-sombrero-pelicula.webp?q=80&w=1600&auto=format&fit=crop');
+      background-size:cover; background-position:center; filter: blur(6px) opacity(.9) saturate(1.05);
+      opacity:.18; pointer-events:none;
+    }
+    .modal-frame::after{ /* brillo neón azul/rojo */
+      content:""; position:absolute; inset:-2px; border-radius:1.1rem; z-index:0; pointer-events:none;
+      box-shadow: 0 0 24px rgba(0,191,255,.6), 0 0 40px rgba(255,0,0,.35);
+      animation: neonPulse 3.6s ease-in-out infinite;
+    }
+    @keyframes neonPulse{ 0%,100%{ box-shadow: 0 0 22px rgba(0,191,255,.55), 0 0 36px rgba(255,0,0,.3);} 50%{ box-shadow:0 0 40px rgba(0,191,255,.9), 0 0 60px rgba(255,0,0,.55);} }
+
+    /* Badge de agotado */
+    .soldout::after{ content: 'Agotado'; position: absolute; top: 8px; right: 8px; background: #0f172a; color: #fff; font-weight: 700; font-size: .75rem; padding: .25rem .5rem; border-radius: .375rem; opacity:.9; }
+
+    /* Footer con copos sutiles */
+    .footer-sparkles { background-image: radial-gradient(2px 2px at 20% 30%, #fff7, transparent 50%), radial-gradient(2px 2px at 60% 70%, #fff5, transparent 50%), radial-gradient(1.5px 1.5px at 80% 20%, #fff6, transparent 50%); background-size: cover; animation: shimmer 6s linear infinite; }
+    @keyframes shimmer { from {background-position: 0 0, 0 0, 0 0;} to {background-position: 100% 0, -100% 0, 50% 0;} }
+    
+    /* Scrollbar sutil en desktop */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 999px; }
+
+
+     .cards {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 40px 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 280px;
+      padding: 20px;
+      transition: transform 0.3s;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .card h3 {
+      color: #d17a22;
+    }
+
+    .card p {
+      font-size: 0.95em;
+      color: #555;
+    }
+
+    /* Nueva sección: Cómo llegar */
+    .como-llegar {
+      background-color: #fff3e6;
+      padding: 60px 20px;
+      border-top: 2px solid #f5c892;
+      border-bottom: 2px solid #f5c892;
+    }
+
+    .como-llegar h2 {
+      font-family: 'Great Vibes', cursive;
+      font-size: 2.5em;
+      color: #c66a13;
+      margin-bottom: 20px;
+    }
+
+    .como-llegar p {
+      font-size: 1.1em;
+      color: #444;
+      margin-bottom: 30px;
+    }
+
+    #map {
+      height: 350px;
+      width: 90%;
+      max-width: 600px;
+      margin: 0 auto 30px;
+      border-radius: 12px;
+      z-index: 1;
+    }
+
+    .btn-maps {
+      background-color: #d17a22;
+      color: #fff;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 30px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-maps:hover {
+      background-color: #b55f0f;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-sky-100 via-white to-sky-50 text-slate-800 min-h-screen theme-day">
+
+  <!-- Fondo fullscreen inteligente -->
+  <div id="bg-fullscreen" aria-hidden="true"></div>
+
+  <!-- Capa de nieve generada en JS + algunas flakes CSS -->
+  <div id="snow-layer" aria-hidden="true" class="pointer-events-none fixed inset-0"></div>
+
+  <!-- Encabezado -->
+  <header class="relative overflow-hidden">
+    <div class="lights flex items-start justify-center gap-3 pt-2">
+      <span class="bulb blue"></span>
+      <span class="bulb red" style="animation-delay:.2s"></span>
+      <span class="bulb green" style="animation-delay:.4s"></span>
+      <span class="bulb white" style="animation-delay:.6s"></span>
+      <span class="bulb blue" style="animation-delay:.8s"></span>
+      <span class="bulb red" style="animation-delay:1s"></span>
+      <span class="bulb green" style="animation-delay:1.2s"></span>
+      <span class="bulb white" style="animation-delay:1.4s"></span>
+    </div>
+
+    <div class="hat-stripes absolute inset-x-0 top-0 h-16 opacity-30"></div>
+
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 pt-20 pb-6 text-center">
+      <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 drop-shadow fade-in">
+        <span id="baby-text" class="inline-block align-middle">🎩 Baby Shower de </span>
+        <span id="baby-name" class="inline-block align-middle text-sky-500">Leonardo</span>
+        <span class="inline-block align-middle"> 🎩</span>
+      </h1>
+      <p id="baby-message" class="mt-4 text-lg sm:text-xl text-slate-700 max-w-3xl mx-auto fade-in" style="animation-delay:.1s">
+        Cada pequeño detalle hace grande nuestra historia. 💙 ¡Gracias por ayudarnos a darle la bienvenida a Leonardo!
+      </p>
+      <p class="mt-2 text-slate-700 fade-in" id="baby-time" style="animation-delay:.2s">📅 <b>13 de diciembre de 2025</b> — 🕒 <b>3:00 p.m.</b></p>
+
+      <!-- Toggle Día/Auto/Noche -->
+      <div class="mt-3 fade-in" style="animation-delay:.28s">
+        <div class="inline-flex items-center gap-1 bg-white/70 backdrop-blur rounded-full p-1 border shadow-sm">
+          <button id="btn-day"   class="px-3 py-1.5 rounded-full text-sm font-semibold text-sky-700 hover:bg-sky-50">🌙 Noche</button>
+          <button id="btn-auto"  class="px-3 py-1.5 rounded-full text-sm font-semibold bg-sky-600 text-white shadow">🕒</button>
+          <button id="btn-night" class="px-3 py-1.5 rounded-full text-sm font-semibold text-rose-700 hover:bg-rose-50">☀️ Día</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cintillo decorativo -->
+    <div class="cintillo py-2">
+      <div class="marquesina">
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+         <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+         <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+         <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+         <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+         <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        <span class="lamp blue"></span><span class="lamp red"></span><span class="lamp green"></span><span class="lamp white"></span>
+        
+      </div>
+    </div>
+  </header>
+
+  <!-- Sección lista de deseos -->
+  <main class="relative mx-auto max-w-7xl px-4 sm:px-6">
+    <section class="mb-4 sm:mb-8">
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 flex items-center gap-2">
+        <span id="baby-lista" >🎁 Nuestra lista de deseos</span>
+        <span class="text-sm font-semibold px-2 py-1 rounded-full text-white" style="background: var(--celeste)">elige y aparta</span>
+      </h2>
+      <p class="text-slate-600 mt-1" id="baby-lista-mensaje">Toca en “Ver regalo” para apartar uno o varios. Si te equivocas, podrás deshacer tu selección o liberar más tarde. 💫</p>
+    </section>
+
+    <!-- Grid de tarjetas -->
+    <section id="grid-regalos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6 pb-16"></section>
+  </main>
+
+  <!-- Modal regalo -->
+  <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-nombre">
+    <div class="relative w-[92vw] max-w-2xl rounded-2xl bg-white shadow-2xl pop-in modal-frame">
+      <div class="relative p-5 sm:p-6 z-10">
+        <button id="close-modal" class="absolute right-3 top-3 rounded-full p-2 bg-slate-100 hover:bg-slate-200 transition z-10" aria-label="Cerrar">✖</button>
+        <div class="flex flex-col md:flex-row gap-4">
+          <img id="modal-img" src="" alt="Regalo" class="w-full md:w-56 h-44 object-cover rounded-xl border" />
+          <div class="flex-1">
+            <h3 id="modal-nombre" class="text-xl sm:text-2xl font-extrabold text-slate-900"></h3>
+            <p id="modal-desc" class="text-slate-600 mt-1"></p>
+
+            <div class="mt-3 flex flex-wrap items-center gap-2">
+              <span class="px-2 py-1 rounded bg-sky-100 text-sky-700 text-sm">Disponibles: <b id="modal-disponibles">0</b></span>
+              <span class="px-2 py-1 rounded bg-emerald-100 text-emerald-700 text-sm hidden" id="badge-reservado">Reservado por ti</span>
+            </div>
+
+            <!-- Selector tipo carrito -->
+            <div class="mt-4 flex items-center gap-3">
+              <button id="qty-minus" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-xl font-bold">−</button>
+              <input id="qty-input" type="number" min="0" class="w-16 text-center border rounded-lg py-2" value="0" />
+              <button id="qty-plus" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-xl font-bold">+</button>
+              <span class="text-sm text-slate-500">Elige cuántos vas a llevar</span>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-3">
+              <button id="btn-apartar" class="px-4 py-2 rounded-xl font-semibold text-white shadow disabled:opacity-60 disabled:cursor-not-allowed" style="background: var(--celeste)">🎁 Guardar selección</button>
+              <button id="btn-ya-no" class="px-4 py-2 rounded-xl font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 hidden">Ya no lo tengo 😞</button>
+              <!-- NUEVO: Anular toda mi selección de este regalo -->
+              <button id="btn-anular" class="px-4 py-2 rounded-xl font-semibold text-white hidden" style="background:#e11d48">❌ Anular mi selección</button>
+            </div>
+
+            <!-- Sugerencias de compra -->
+            <div class="mt-5">
+              <h4 class="font-bold text-slate-900">Sugerencias de compra</h4>
+              <ul id="modal-sugerencias" class="mt-2 space-y-1 text-sky-700 underline"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>📅 Fecha</h3>
+      <p>Sábado 10 de diciembre, 2025</p>
+    </div>
+    <div class="card">
+      <h3>⏰ Hora</h3>
+      <p>Comenzamos a las 5:00 PM</p>
+    </div>
+    <div class="card">
+      <h3>👗 Dress Code</h3>
+      <p>Formal elegante</p>
+    </div>
+  </div>
+
+  <!-- Nueva sección: ¿Cómo llegar? -->
+  <section class="como-llegar">
+    <h2>¿Cómo llegar?</h2>
+    <p>
+      <strong>Salón De Fiestas Cantoya</strong><br>
+      Joaquín de La Cantoya y Rico 100,<br>
+      Jardines de Guadalupe, 58140 Morelia, Mich.
+    </p>
+
+    <div id="map"></div>
+
+    <a
+      href="https://www.google.com/maps/dir/?api=1&destination=Joaquín+de+La+Cantoya+y+Rico+100,+Jardines+de+Guadalupe,+58140+Morelia,+Michoacán,+México"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="btn-maps"
+    >
+      🚗 Ir al salón
+    </a>
+  </section>
+
+  <!-- Toast notificación -->
+  <div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-6 z-50 hidden">
+    <div class="bg-slate-900 text-white rounded-2xl shadow-xl px-4 py-3 flex items-center gap-3">
+      <span id="toast-msg" class="text-sm"></span>
+      <button id="toast-undo" class="px-3 py-1 rounded-lg font-semibold bg-white/10 hover:bg-white/20">Deshacer</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="mt-10">
+    <div class="footer-sparkles text-center text-white py-10 bg-gradient-to-r from-sky-500 via-rose-500 to-sky-600">
+      <p class="text-lg sm:text-xl font-semibold">Con cariño, la familia de Leonardo 💫</p>
+      <p class="opacity-90">¡Felices fiestas y gracias por compartir esta alegría!</p>
+    </div>
+  </footer>
+
+  <script>
+  // ==========================
+  // Tema Día/Noche (auto + toggle + tiempo real)
+  // ==========================
+  const THEME_KEY = 'leonardo_theme_pref'; // 'auto' | 'day' | 'night'
+  const btnDay = document.getElementById('btn-day');
+  const btnAuto = document.getElementById('btn-auto');
+  const btnNight = document.getElementById('btn-night');
+
+  const labelBabyText = document.getElementById('baby-text');
+  const labelBabyName = document.getElementById('baby-name');
+  const labelBabyMessage = document.getElementById('baby-message');
+  const labelBabyTime = document.getElementById('baby-time');
+  const labelBabyLista = document.getElementById('baby-lista');
+  const labelBabyListaMensaje = document.getElementById('baby-lista-mensaje');
+
+  function getPref(){ return localStorage.getItem(THEME_KEY) || 'auto'; }
+  function setPref(v){ localStorage.setItem(THEME_KEY, v); refreshToggleUI(v); }
+  function isDayHour(){ const h = new Date().getHours(); return h >= 6 && h < 18; }
+  function applyTheme(mode){
+    const body = document.body;
+    body.classList.remove('theme-day','theme-night');
+    const finalMode = mode === 'auto' ? (isDayHour() ? 'theme-day' : 'theme-night') : (mode==='day' ? 'theme-day' : 'theme-night');
+    body.classList.add(finalMode);
+  }
+  
+  function refreshToggleUI(mode){
+    [btnDay, btnAuto, btnNight].forEach(b=>b && b.classList.remove('bg-sky-600','text-white','shadow'));
+    if(mode==='day')
+    {
+        btnDay.classList.add('bg-sky-600','text-white','shadow'); 
+
+        labelBabyText.classList.add('text-white');
+        labelBabyMessage.classList.add('text-white');
+        labelBabyTime.classList.add('text-white');
+        labelBabyLista.classList.add('text-white');
+        labelBabyListaMensaje.classList.add('text-white');
+    }
+    else if(mode==='night')
+    { 
+        btnNight.classList.add('bg-sky-600','text-white','shadow');
+         labelBabyText.classList.remove('text-white');
+        labelBabyMessage.classList.remove('text-white');
+        labelBabyTime.classList.remove('text-white');
+        labelBabyLista.classList.remove('text-white');
+        labelBabyListaMensaje.classList.remove('text-white');
+    }
+    else 
+    { 
+        btnAuto.classList.add('bg-sky-600','text-white','shadow');
+
+         labelBabyText.classList.remove('text-white');
+        labelBabyMessage.classList.remove('text-white');
+        labelBabyTime.classList.remove('text-white');
+        labelBabyLista.classList.remove('text-white');
+        labelBabyListaMensaje.classList.remove('text-white');
+    }
+  }
+  function tickTheme(){ const pref = getPref(); applyTheme(pref); }
+
+  btnDay?.addEventListener('click', ()=>{ setPref('day'); tickTheme(); });
+  btnNight?.addEventListener('click', ()=>{ setPref('night'); tickTheme(); });
+
+  setInterval(()=>{ if(getPref()==='auto') tickTheme(); }, 60*1000); // re-evalúa cada minuto
+
+  // ==========================
+  // Datos de regalos (JSON)
+  // ==========================
+  const regalos = [
+    { id: 1, nombre: "Cobijita azul", descripcion: "Suave y cálida para el pequeño Leonardo.", imagen: "https://images.unsplash.com/photo-1615485290343-9512b86a3d3b?q=80&w=1200&auto=format&fit=crop", cantidad: 3, sugerencias: [
+      { tienda: "Amazon", url: "https://www.amazon.com/" },
+      { tienda: "Walmart", url: "https://www.walmart.com/" }
+    ] },
+    { id: 2, nombre: "Pañaleros (pack)", descripcion: "Tallas 0-3 meses, algodón orgánico.", imagen: "https://images.unsplash.com/photo-1584847801115-1a3634ef24d4?q=80&w=1200&auto=format&fit=crop", cantidad: 5, sugerencias: [
+      { tienda: "Liverpool", url: "https://www.liverpool.com.mx/" },
+      { tienda: "Amazon", url: "https://www.amazon.com/" }
+    ] },
+    { id: 3, nombre: "Biberones anti-cólico", descripcion: "Fáciles de lavar, flujo recién nacido.", imagen: "https://images.unsplash.com/photo-1604594226667-0f3babe47a90?q=80&w=1200&auto=format&fit=crop", cantidad: 4, sugerencias: [
+      { tienda: "Walmart", url: "https://www.walmart.com/" }
+    ] },
+    { id: 4, nombre: "Juguete sensorial", descripcion: "Texturas y sonidos suaves.", imagen: "https://images.unsplash.com/photo-1608695739166-1d3b0ef5b2b6?q=80&w=1200&auto=format&fit=crop", cantidad: 2, sugerencias: [
+      { tienda: "Amazon", url: "https://www.amazon.com/" }
+    ] },
+    { id: 5, nombre: "Monitor de bebé", descripcion: "Con visión nocturna y audio bidireccional.", imagen: "https://images.unsplash.com/photo-1612178991541-84a7540f76e8?q=80&w=1200&auto=format&fit=crop", cantidad: 1, sugerencias: [
+      { tienda: "Liverpool", url: "https://www.liverpool.com.mx/" },
+      { tienda: "Amazon", url: "https://www.amazon.com/" }
+    ] },
+    { id: 6, nombre: "Toallitas húmedas (paquete)", descripcion: "Hipoalergénicas, sin fragancia.", imagen: "https://images.unsplash.com/photo-1622219678305-abc9b9f70f65?q=80&w=1200&auto=format&fit=crop", cantidad: 6, sugerencias: [
+      { tienda: "Walmart", url: "https://www.walmart.com/" }
+    ] },
+    { id: 7, nombre: "Kit de baño", descripcion: "Shampoo, jabón y crema para bebé.", imagen: "https://images.unsplash.com/photo-1622470954791-986b4774b1ad?q=80&w=1200&auto=format&fit=crop", cantidad: 3, sugerencias: [
+      { tienda: "Amazon", url: "https://www.amazon.com/" }
+    ] },
+    { id: 8, nombre: "Baberos", descripcion: "Resistentes y fáciles de limpiar.", imagen: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1200&auto=format&fit=crop", cantidad: 4, sugerencias: [
+      { tienda: "Liverpool", url: "https://www.liverpool.com.mx/" }
+    ] },
+    { id: 9, nombre: "Termómetro digital", descripcion: "Rápido y preciso.", imagen: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200&auto=format&fit=crop", cantidad: 2, sugerencias: [
+      { tienda: "Amazon", url: "https://www.amazon.com/" }
+    ] },
+    { id: 10, nombre: "Portabebés", descripcion: "Ergonómico y transpirable.", imagen: "https://images.unsplash.com/photo-1597960192105-4b8f8a17cc11?q=80&w=1200&auto=format&fit=crop", cantidad: 1, sugerencias: [
+      { tienda: "Walmart", url: "https://www.walmart.com/" }
+    ] }
+  ];
+
+  // ==========================
+  // Utilidades de estado
+  // ==========================
+  const STORAGE_KEY = 'leonardoBabyShower_v1_reservations';
+  const UNDO_TIMEOUT_MS = 10000; // 10s para deshacer
+  const RELASE_AFTER_MS = 24 * 60 * 60 * 1000; // 24h
+
+  function loadReservations(){
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+  }
+  function saveReservations(map){ localStorage.setItem(STORAGE_KEY, JSON.stringify(map)); }
+  function getReservedCount(id){ const map = loadReservations(); return map[id]?.count || 0; }
+  function setReservedCount(id, count){
+    const map = loadReservations(); const now = Date.now();
+    if(count > 0){ map[id] = map[id] ? { ...map[id], count, timestamp: map[id].timestamp ?? now } : { count, timestamp: now }; }
+    else { delete map[id]; }
+    saveReservations(map);
+  }
+  function canShowYaNo(id){ const map = loadReservations(); if(!map[id]) return false; return (Date.now() - (map[id].timestamp || 0)) >= RELASE_AFTER_MS; }
+
+  // ==========================
+  // Render de tarjetas
+  // ==========================
+  const grid = document.getElementById('grid-regalos');
+  function computeDisponibles(regalo){ const propios = getReservedCount(regalo.id); const disp = Math.max(regalo.cantidad - propios, 0); return { propios, disp }; }
+  function cardTemplate(regalo){
+    const { propios, disp } = computeDisponibles(regalo); const agotado = disp === 0; const reservadoPorMi = propios > 0;
+    return `
+      <article class="relative group rounded-2xl border shadow-sm bg-white overflow-hidden transition hover:shadow-md ${agotado ? 'opacity-70 grayscale' : ''}">
+        <div class="aspect-[4/3] overflow-hidden">
+          <img src="${regalo.imagen}" alt="${regalo.nombre}" class="w-full h-full object-cover transition group-hover:scale-[1.02]" />
+        </div>
+        <div class="p-4">
+          <h3 class="font-extrabold text-slate-900">${regalo.nombre}</h3>
+          <p class="text-sm text-slate-600 line-clamp-2">${regalo.descripcion}</p>
+          <div class="mt-3 flex items-center justify-between">
+            <span class="text-sm px-2 py-1 rounded bg-sky-100 text-sky-700">Necesitamos: <b>${Math.max(regalo.cantidad,0)}</b></span>
+            <span class="text-sm px-2 py-1 rounded ${agotado ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-700'}">Restantes: <b>${disp}</b></span>
+          </div>
+          ${reservadoPorMi ? '<p class="mt-2 text-xs font-semibold text-emerald-700">✔ Reservado por ti</p>' : ''}
+          <button data-id="${regalo.id}" class="btn-ver w-full mt-3 px-4 py-2 rounded-xl font-semibold text-white shadow ${agotado && !reservadoPorMi ? 'cursor-not-allowed opacity-60' : 'hover:brightness-110'}" style="background: var(--celeste)" ${agotado && !reservadoPorMi ? 'disabled' : ''}>Ver regalo</button>
+        </div>
+        ${agotado && !reservadoPorMi ? '<div class="soldout"></div>' : ''}
+      </article>
+    `;
+  }
+  function renderGrid(){
+    grid.innerHTML = regalos.map(cardTemplate).join('');
+    document.querySelectorAll('.btn-ver').forEach(btn => btn.addEventListener('click', openModal));
+  }
+
+  // ==========================
+  // Modal lógica
+  // ==========================
+  const modalBackdrop = document.getElementById('modal-backdrop');
+  const closeModalBtn  = document.getElementById('close-modal');
+  const modalImg = document.getElementById('modal-img');
+  const modalNombre = document.getElementById('modal-nombre');
+  const modalDesc = document.getElementById('modal-desc');
+  const modalDisp = document.getElementById('modal-disponibles');
+  const badgeReservado = document.getElementById('badge-reservado');
+  const qtyMinus = document.getElementById('qty-minus');
+  const qtyPlus = document.getElementById('qty-plus');
+  const qtyInput = document.getElementById('qty-input');
+  const btnApartar = document.getElementById('btn-apartar');
+  const btnYaNo = document.getElementById('btn-ya-no');
+  const btnAnular = document.getElementById('btn-anular');
+  const sugList = document.getElementById('modal-sugerencias');
+
+  let currentGift = null; let undoTimer = null; let lastState = null; // para deshacer {id, prevCount}
+
+  function openModal(e){
+    const id = Number(e.currentTarget.dataset.id); currentGift = regalos.find(r => r.id === id);
+    const { propios, disp } = computeDisponibles(currentGift);
+    modalImg.src = currentGift.imagen; modalNombre.textContent = currentGift.nombre; modalDesc.textContent = currentGift.descripcion; modalDisp.textContent = disp; badgeReservado.classList.toggle('hidden', !(propios>0));
+    sugList.innerHTML = (currentGift.sugerencias||[]).map(s => `<li><a href="${s.url}" target="_blank" rel="noopener" class="hover:underline">${s.tienda} ↗</a></li>`).join('');
+    qtyInput.value = propios; qtyInput.max = currentGift.cantidad; btnApartar.disabled = false; 
+    btnYaNo.classList.toggle('hidden', !(propios>0 && canShowYaNo(currentGift.id)));
+    btnAnular.classList.toggle('hidden', !(propios>0));
+    modalBackdrop.classList.add('show');
+    document.body.classList.add('modal-open'); // BLOQUEO DE SCROLL
+  }
+  function closeModal(){ 
+    modalBackdrop.classList.remove('show'); 
+    document.body.classList.remove('modal-open'); 
+  }
+  closeModalBtn.addEventListener('click', closeModal); 
+  modalBackdrop.addEventListener('click', (e)=>{ if(e.target === modalBackdrop) closeModal(); });
+
+  qtyMinus.addEventListener('click', ()=>{ const val = Math.max(0, Number(qtyInput.value||0) - 1); qtyInput.value = val; });
+  qtyPlus.addEventListener('click', ()=>{ const current = Number(qtyInput.value||0); const max = Number(qtyInput.max||0); const next = Math.min(max, current + 1); qtyInput.value = next; });
+  qtyInput.addEventListener('input', ()=>{ let val = parseInt(qtyInput.value,10); if(isNaN(val)||val<0) val = 0; const max = Number(qtyInput.max||0); qtyInput.value = Math.min(max, val); });
+
+  // Toast helpers
+  const toast = document.getElementById('toast'); const toastMsg = document.getElementById('toast-msg'); const toastUndo = document.getElementById('toast-undo');
+  function showToast(message, onUndo){ clearTimeout(undoTimer); toastMsg.textContent = message; toast.classList.remove('hidden'); toastUndo.onclick = ()=>{ onUndo?.(); hideToast(); }; undoTimer = setTimeout(()=>{ hideToast(); }, UNDO_TIMEOUT_MS); }
+  function hideToast(){ toast.classList.add('hidden'); clearTimeout(undoTimer); }
+
+  btnApartar.addEventListener('click', ()=>{
+    if(!currentGift) return; const prev = getReservedCount(currentGift.id); const desired = Math.min(currentGift.cantidad, Math.max(0, Number(qtyInput.value||0)));
+    if(prev === desired){ showToast('No hay cambios en tu selección.', null); return; }
+    lastState = { id: currentGift.id, prevCount: prev }; setReservedCount(currentGift.id, desired);
+    renderGrid(); const { disp } = computeDisponibles(currentGift); modalDisp.textContent = disp; badgeReservado.classList.toggle('hidden', !(desired>0)); btnYaNo.classList.toggle('hidden', !(desired>0 && canShowYaNo(currentGift.id))); btnAnular.classList.toggle('hidden', !(desired>0));
+    showToast(`Tu selección fue guardada (${desired} ${desired===1?'unidad':'unidades'}).`, ()=>{ setReservedCount(lastState.id, lastState.prevCount); if(currentGift && currentGift.id === lastState.id){ qtyInput.value = lastState.prevCount; const { disp } = computeDisponibles(currentGift); modalDisp.textContent = disp; badgeReservado.classList.toggle('hidden', !(lastState.prevCount>0)); btnYaNo.classList.toggle('hidden', !(lastState.prevCount>0 && canShowYaNo(currentGift.id))); btnAnular.classList.toggle('hidden', !(lastState.prevCount>0)); } renderGrid(); });
+  });
+
+  btnYaNo.addEventListener('click', ()=>{
+    if(!currentGift) return; const prev = getReservedCount(currentGift.id); if(prev <= 0) return;
+    lastState = { id: currentGift.id, prevCount: prev }; setReservedCount(currentGift.id, 0); qtyInput.value = 0; renderGrid(); const { disp } = computeDisponibles(currentGift); modalDisp.textContent = disp; badgeReservado.classList.add('hidden'); btnYaNo.classList.add('hidden'); btnAnular.classList.add('hidden');
+    showToast('Liberaste tu selección. ¡Gracias por avisar! 🤍', ()=>{ setReservedCount(lastState.id, lastState.prevCount); if(currentGift && currentGift.id === lastState.id){ qtyInput.value = lastState.prevCount; badgeReservado.classList.toggle('hidden', !(lastState.prevCount>0)); btnYaNo.classList.toggle('hidden', !(lastState.prevCount>0 && canShowYaNo(currentGift.id))); btnAnular.classList.toggle('hidden', !(lastState.prevCount>0)); const { disp } = computeDisponibles(currentGift); modalDisp.textContent = disp; } renderGrid(); });
+  });
+
+  // NUEVO: Anular toda mi selección inmediatamente (sin esperar 24h)
+  btnAnular.addEventListener('click', ()=>{
+    if(!currentGift) return;
+    const prev = getReservedCount(currentGift.id);
+    if(prev <= 0) return;
+    lastState = { id: currentGift.id, prevCount: prev };
+    setReservedCount(currentGift.id, 0);
+    qtyInput.value = 0;
+    renderGrid();
+    const { disp } = computeDisponibles(currentGift);
+    modalDisp.textContent = disp;
+    badgeReservado.classList.add('hidden');
+    btnYaNo.classList.add('hidden');
+    btnAnular.classList.add('hidden');
+    showToast('❌ Anulaste toda tu selección para este regalo.', ()=>{
+      setReservedCount(lastState.id, lastState.prevCount);
+      if(currentGift && currentGift.id === lastState.id){
+        qtyInput.value = lastState.prevCount;
+        badgeReservado.classList.toggle('hidden', !(lastState.prevCount>0));
+        btnYaNo.classList.toggle('hidden', !(lastState.prevCount>0 && canShowYaNo(currentGift.id)));
+        btnAnular.classList.toggle('hidden', !(lastState.prevCount>0));
+        const { disp } = computeDisponibles(currentGift); modalDisp.textContent = disp;
+      }
+      renderGrid();
+    });
+  });
+
+  // ==========================
+  // Nieve animada (partículas)
+  // ==========================
+  function spawnSnow(){
+    const layer = document.getElementById('snow-layer'); const count = Math.min(80, Math.floor(window.innerWidth/12)); layer.innerHTML = '';
+    for(let i=0;i<count;i++){
+      const el = document.createElement('div'); el.className = 'snowflake'; el.textContent = '❄';
+      const size = 12 + Math.random()*10; const left = Math.random()*100; const duration = 6 + Math.random()*8; const delay = -Math.random()*duration; const drift = (Math.random()*40-20);
+      el.style.fontSize = size+'px'; el.style.left = left+'vw'; el.style.animationDuration = duration+'s'; el.style.animationDelay = delay+'s'; el.style.filter = 'drop-shadow(0 0 2px rgba(255,255,255,.6))'; el.style.transform = `translateX(${drift}px)`; layer.appendChild(el);
+    }
+  }
+  window.addEventListener('resize', spawnSnow);
+
+  // ==========================
+  // Inicio
+  // ==========================
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // Tema inicial
+    refreshToggleUI(getPref()); tickTheme();
+    // Render UI
+    spawnSnow(); renderGrid();
+    // Animación de entrada
+    document.body.classList.add('fade-in');
+  });
+  </script>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Script del mapa -->
+  <script>
+    // Coordenadas del Salón De Fiestas Cantoya (aproximadas)
+    const coords = [19.6903, -101.1795];
+
+    // Crear mapa
+    const map = L.map('map').setView(coords, 15);
+
+    // Capa base de OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Ícono personalizado de bebé
+    const babyIcon = L.icon({
+      iconUrl: './img/assets/pin-maps.png',
+      iconSize: [90, 90],
+      iconAnchor: [25, 50],
+      popupAnchor: [0, -45]
+    });
+
+    // Agregar marcador
+    L.marker(coords, { icon: babyIcon })
+      .addTo(map)
+      .bindPopup('<b>Salón De Fiestas Cantoya</b><br>Joaquín de La Cantoya y Rico 100')
+      .openPopup();
+  </script>
+</body>
+</html>

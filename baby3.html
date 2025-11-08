@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invitación Especial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+
+  <!-- Estilos base -->
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fff8f2;
+      color: #333;
+      text-align: center;
+    }
+
+    header {
+      background: linear-gradient(135deg, #ffecd2, #fcb69f);
+      padding: 60px 20px;
+    }
+
+    h1 {
+      font-family: 'Great Vibes', cursive;
+      font-size: 3em;
+      color: #d17a22;
+      margin-bottom: 10px;
+    }
+
+    p.subtitle {
+      font-size: 1.2em;
+      color: #6b4e16;
+      margin-bottom: 30px;
+    }
+
+    .cards {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 40px 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 280px;
+      padding: 20px;
+      transition: transform 0.3s;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .card h3 {
+      color: #d17a22;
+    }
+
+    .card p {
+      font-size: 0.95em;
+      color: #555;
+    }
+
+    /* Nueva sección: Cómo llegar */
+    .como-llegar {
+      background-color: #fff3e6;
+      padding: 60px 20px;
+      border-top: 2px solid #f5c892;
+      border-bottom: 2px solid #f5c892;
+    }
+
+    .como-llegar h2 {
+      font-family: 'Great Vibes', cursive;
+      font-size: 2.5em;
+      color: #c66a13;
+      margin-bottom: 20px;
+    }
+
+    .como-llegar p {
+      font-size: 1.1em;
+      color: #444;
+      margin-bottom: 30px;
+    }
+
+    #map {
+      height: 350px;
+      width: 90%;
+      max-width: 600px;
+      margin: 0 auto 30px;
+      border-radius: 12px;
+      z-index: 1;
+    }
+
+    .btn-maps {
+      background-color: #d17a22;
+      color: #fff;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 30px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-maps:hover {
+      background-color: #b55f0f;
+    }
+
+    footer {
+      background: #d17a22;
+      color: white;
+      padding: 15px;
+      font-size: 0.9em;
+      margin-top: 40px;
+    }
+  </style>
+
+  <!-- Leaflet CSS (sin integrity/crossorigin para evitar bloqueo) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+</head>
+<body>
+  <header>
+    <h1>Invitación Especial</h1>
+    <p class="subtitle">Te esperamos para celebrar un momento único</p>
+  </header>
+
+  <div class="cards">
+    <div class="card">
+      <h3>📅 Fecha</h3>
+      <p>Sábado 10 de diciembre, 2025</p>
+    </div>
+    <div class="card">
+      <h3>⏰ Hora</h3>
+      <p>Comenzamos a las 5:00 PM</p>
+    </div>
+    <div class="card">
+      <h3>👗 Dress Code</h3>
+      <p>Formal elegante</p>
+    </div>
+  </div>
+
+  <!-- Nueva sección: ¿Cómo llegar? -->
+  <section class="como-llegar">
+    <h2>¿Cómo llegar?</h2>
+    <p>
+      <strong>Salón De Fiestas Cantoya</strong><br>
+      Joaquín de La Cantoya y Rico 100,<br>
+      Jardines de Guadalupe, 58140 Morelia, Mich.
+    </p>
+
+    <div id="map"></div>
+
+    <a
+      href="https://www.google.com/maps/dir/?api=1&destination=Joaquín+de+La+Cantoya+y+Rico+100,+Jardines+de+Guadalupe,+58140+Morelia,+Michoacán,+México"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="btn-maps"
+    >
+      🚗 Ir al salón
+    </a>
+  </section>
+
+  <footer>
+    © 2025 Invitación Especial - Todos los derechos reservados
+  </footer>
+
+  <!-- Leaflet JS (sin integrity/crossorigin para evitar bloqueo) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Script del mapa -->
+  <script>
+    // Coordenadas del Salón De Fiestas Cantoya (aproximadas)
+    const coords = [19.6903, -101.1795];
+
+    // Crear mapa
+    const map = L.map('map').setView(coords, 15);
+
+    // Capa base de OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Ícono personalizado de bebé
+    const babyIcon = L.icon({
+      iconUrl: './img/assets/pin-maps.png',
+      iconSize: [90, 90],
+      iconAnchor: [25, 50],
+      popupAnchor: [0, -45]
+    });
+
+    // Agregar marcador
+    L.marker(coords, { icon: babyIcon })
+      .addTo(map)
+      .bindPopup('<b>Salón De Fiestas Cantoya</b><br>Joaquín de La Cantoya y Rico 100')
+      .openPopup();
+  </script>
+</body>
+</html>
